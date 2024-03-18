@@ -10,10 +10,14 @@ class Block(Base):
 
     id = Column(Integer, primary_key=True)
     block_number = Column(Integer, unique=True, nullable=False)
-    previous_hash = Column(String, nullable=False)
-    nonce = Column(String, nullable=False)
-    merkle_root = Column(String, nullable=False)
+
+    block_hash = Column(String, unique=True, nullable=False)
+    previous_hash = Column(String, unique=True, nullable=False)
+    nonce = Column(String, unique=True, nullable=False)
+    merkle_root = Column(String, unique=True, nullable=False)
+
     timestamp = Column(DateTime, nullable=False)
+
     transactions = relationship("Transaction", back_populates="block")
 
     def calculate_merkle_root(self):
@@ -26,3 +30,7 @@ class Block(Base):
                 for i in range(0, len(merkle_tree), 2)
             ]
         self.merkle_root = merkle_tree[0]
+
+    def calculate_block_hash(self) -> str:
+        block_data = f"{self.block_number}{self.previous_hash}{self.nonce}{self.merkle_root}{self.timestamp}"
+        return hashlib.sha256(block_data.encode()).hexdigest()

@@ -12,6 +12,6 @@ class Transaction(Base):
     recipient_address = Column(String, nullable=False)
     amount = Column(Integer, nullable=False)
     timestamp = Column(DateTime, nullable=False)
-    transaction_hash = Column(String, nullable=False)
+    transaction_hash = Column(String, unique=True, nullable=False)
     block_id = Column(Integer, ForeignKey("block.id"))
     block = relationship("Block", back_populates="transactions")
