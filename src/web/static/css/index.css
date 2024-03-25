@@ -1,7 +1,7 @@
 body {
     background-color: #121212;
     color: #fff;
-    background-image: url('logback.jpg');
+    background-image: url('../images/logback.jpg');
     background-size: cover;
     background-repeat: no-repeat;
     background-attachment: fixed;
@@ -44,4 +44,25 @@ body {
 .form-control:focus {
     background-color: #444 !important;
     color: white;
+}
+
+
+html *
+{
+    font-family: "JetBrains Mono";
+}
+
+
+.top{
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    height: auto;
+    z-index: 9999;
+}
+
+.corner-image {
+    margin-bottom: 10px;
+    width: 80px;
+    border-radius: 5px;
 }

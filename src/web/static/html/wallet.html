@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poachain Кошелек</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/index.css" rel="stylesheet">
+    <link href="../css/wallet.css" rel="stylesheet">
+    <link href='https://fonts.googleapis.com/css?family=JetBrains Mono' rel='stylesheet'>
+    <script src="../js/cookies.js"></script>
+    <script src="../js/wallet.js"></script>
+    <script src="../js/index.js"></script>
+</head>
+<body onload="setData()">
+<div class="container mt-5">
+    <h1 class="mb-4"><b>Poachain Кошелек</b></h1>
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Текущий баланс:</h5>
+            <p class="card-text h2" id="balance"></p>
+        </div>
+    </div>
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Ваш адрес:</h5>
+            <p class="card-text" id="address">Ваш адрес будет здесь</p>
+            <button class="btn btn-primary" onclick="copyAddress()">Копировать адрес</button>
+        </div>
+    </div>
+    <ul class="nav nav-tabs mb-4">
+        <li class="nav-item">
+            <a class="nav-link active" href="#send" id="sendlink" onclick="openTab('send')">Отправить криптовалюту</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#sign" id="signlink" onclick="openTab('sign')">Создать подпись</a>
+        </li>
+    </ul>
+    <div id="send" class="tab-content">
+        <form onsubmit="confirmSend(); return false;">
+            <div class="form-group">
+                <input type="text" class="form-control" id="recipient" name="recipient" placeholder="Адрес получателя">
+            </div>
+            <div class="form-group">
+                <input type="text" class="form-control" id="amount" name="amount" placeholder="Сумма">
+            </div>
+            <button type="submit" class="btn btn-primary">Отправить</button>
+        </form>
+    </div>
+    <div id="sign" class="tab-content" hidden>
+        <form>
+            <div class="form-group">
+                <input type="text" class="form-control" id="message" name="message" placeholder="Сообщение">
+            </div>
+            <button type="submit" class="btn btn-primary">Создать подпись</button>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content bg-dark text-light border border-primary">
+            <div class="modal-header border-0">
+                <h5 class="modal-title" id="confirmModalLabel">Подтвердите отправку</h5>
+                <button type="button" class="close text-light" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Вы уверены, что хотите отправить эту транзакцию?
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary" onclick="sendTransaction()">Подтвердить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="successPopup" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="2000"
+     style="position: fixed; top: 10px; right: 10px;">
+    <div class="toast-header bg-success text-white">
+        <strong class="mr-auto">Успешно скопировано!</strong>
+        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="toast-body" style="color: black">
+        Адрес был скопирован в буфер обмена.
+    </div>
+</div>
+
+
+<div class="top">
+    <a href="/" onclick="logout()">
+        <img src="../images/logo.png" alt="Главная" class="corner-image">
+    </a> <br>
+    <button type="button" class="btn btn-primary" onclick="logout()">Выйти</button>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

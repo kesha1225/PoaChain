@@ -25,7 +25,9 @@ async def create_transaction(
         amount=amount,
         timestamp=datetime.datetime.now(),
     )
-    new_transaction.transaction_hash = generate_transaction_hash(transaction=new_transaction)
+    new_transaction.transaction_hash = generate_transaction_hash(
+        transaction=new_transaction
+    )
 
     session.add(new_transaction)
 
