@@ -21,7 +21,6 @@ from chain.db import Base
 
 target_metadata = Base.metadata
 
-
 config.set_main_option("sqlalchemy.url", PostgresConfig.db_url_alembic)
 
 

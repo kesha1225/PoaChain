@@ -55,3 +55,36 @@ async function setData() {
     addressText.textContent = walletData["address"]
     balanceText.textContent = `${walletData["balance"]} POA`
 }
+
+
+async function signMessage() {
+    let message = document.getElementById("message")
+
+    let result = (await (await fetch("/sign", {
+        method: "POST",
+        body: JSON.stringify({message: message.value})
+    })).json())["result"]
+
+    let signText = document.getElementById("resultSign")
+
+    signText.hidden = false
+    signText.value = result
+
+    document.getElementById("signButton").hidden = false
+}
+
+
+async function copySign() {
+    await signMessage()
+    let signElement = document.getElementById("resultSign");
+    let sign = signElement.value;
+    navigator.clipboard.writeText(sign)
+        .then(function () {
+            $("#successPopupSign").toast('show'); // Показываем popup
+            setTimeout(function () {
+                $("#successPopupSign").toast('hide'); // Скрываем popup через 2 секунды
+            }, 2000);
+        })
+        .catch(function (error) {
+        });
+}

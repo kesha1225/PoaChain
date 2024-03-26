@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from functools import wraps
 
+from chain.db import Base
 from chain_config import PostgresConfig
 
 engine = create_async_engine(PostgresConfig.db_url)
