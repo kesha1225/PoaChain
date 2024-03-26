@@ -13,3 +13,7 @@ class PostgresConfig:
 
 class WebConfig:
     encryption_key = os.getenv("ENCRYPT_KEY")
+
+
+class ChainConfig:
+    address_prefix = "poa"

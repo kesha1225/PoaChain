@@ -4,7 +4,7 @@ from base64 import b64encode
 from random import random
 from nacl.bindings.crypto_sign import crypto_sign
 
-from chain.crypto import bech32
+from crypto import bech32
 
 
 def to_public_key(address: str) -> list[int]:

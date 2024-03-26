@@ -1,7 +1,7 @@
 from mnemonic import Mnemonic
 from fastapi import APIRouter
 
-from chain.poa_mnemonic import get_data_from_mnemonic, is_valid_mnemonic
+from crypto.poa_mnemonic import get_data_from_mnemonic, is_valid_mnemonic
 from web.encryption import encrypt_text
 from web.models.mnemonic import UserInputMnemonic
 

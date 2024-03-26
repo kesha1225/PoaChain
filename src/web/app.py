@@ -16,6 +16,7 @@ app.mount("/images", StaticFiles(directory="web/static/images/"), name="images")
 
 
 # надо:
+# 0. нода для чейн отдельная вебапка
 # 1. todo: get_wallet_data поменять чтобы он ходил в ноду а не в базу
 # todo: чтобы нода как то по пруф оф авторити работала
 # 2. todo: првоерять что кука протухла и разлогинивать!

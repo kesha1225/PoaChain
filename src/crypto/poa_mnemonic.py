@@ -1,8 +1,7 @@
 import dataclasses
 from mnemonic import Mnemonic
-from ecdsa import SigningKey
 
-from chain.crypto.generate_wallet import restore_wallet
+from crypto.generate_wallet import restore_wallet
 
 
 @dataclasses.dataclass

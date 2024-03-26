@@ -1,12 +1,11 @@
-from typing import Union
 from hashlib import pbkdf2_hmac, sha256
 from mnemonic import Mnemonic
 
 from nacl.bindings import crypto_sign_seed_keypair
 
-from chain.constants import ADDRESS_PREFIX
-from chain.crypto import bech32
-from chain.crypto.converter import hex_to_int_list
+from chain_config import ChainConfig
+from crypto import bech32
+from crypto.converter import hex_to_int_list
 
 
 def generate_mnemo_words() -> str:
@@ -38,7 +37,7 @@ def generate_wallet() -> tuple[str, str, str, str]:
     seed = to_seed(mnemo)
     unsigned_int = to_unsigned_list_int(seed)
     pk, sk = generate_pk_sk(unsigned_int)
-    address = generate_wallet_address(pk, prefix=ADDRESS_PREFIX)
+    address = generate_wallet_address(pk, prefix=ChainConfig.address_prefix)
     return address, mnemo, pk, sk
 
 
@@ -46,5 +45,5 @@ def restore_wallet(mnemonic: str) -> tuple[str, str, str, str]:
     seed = to_seed(mnemonic)
     unsigned_int = to_unsigned_list_int(seed)
     pk, sk = generate_pk_sk(unsigned_int)
-    address = generate_wallet_address(pk, prefix=ADDRESS_PREFIX)
+    address = generate_wallet_address(pk, prefix=ChainConfig.address_prefix)
     return address, mnemonic, pk, sk

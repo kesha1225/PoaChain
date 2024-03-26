@@ -3,8 +3,8 @@ import base64
 from nacl.exceptions import BadSignatureError
 from nacl.bindings import crypto_sign, crypto_sign_open
 
-from chain.crypto.converter import hex_to_int_list
-from chain.crypto.transfer import to_public_key
+from crypto.converter import hex_to_int_list
+from crypto.transfer import to_public_key
 
 
 def sign_message(message: str, private_key: str) -> str:
