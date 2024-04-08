@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from chain.db import Transaction
 from chain.db.session import db_session
+from node.models.transaction import TransactionModel
 
 
 def generate_transaction_hash(transaction: Transaction) -> str:
@@ -18,18 +19,16 @@ def generate_transaction_hash(transaction: Transaction) -> str:
 
 @db_session
 async def create_transaction(
-    session: AsyncSession, sender_address: str, recipient_address: str, amount: int
+    session: AsyncSession, transaction: TransactionModel, block_id: int
 ) -> Transaction:
     new_transaction = Transaction(
-        sender_address=sender_address,
-        recipient_address=recipient_address,
-        amount=amount,
-        timestamp=datetime.datetime.now(),
+        sender_address=transaction.sender_address,
+        recipient_address=transaction.recipient_address,
+        amount=transaction.amount,
+        timestamp=transaction.timestamp,
+        transaction_hash=transaction.transaction_hash,
+        block_id=block_id,
     )
-    new_transaction.transaction_hash = generate_transaction_hash(
-        transaction=new_transaction
-    )
-
     session.add(new_transaction)
 
     await session.commit()
@@ -52,3 +51,16 @@ async def calculate_balance(session: AsyncSession, address: str):
     balance = (received_amount or 0) - (sent_amount or 0)
 
     return balance
+
+
+@db_session
+async def get_block_transactions(
+    session: AsyncSession, block_id: int
+) -> list[Transaction]:
+    block_transactions = (
+        await session.execute(
+            select(Transaction).where(Transaction.block_id == block_id)
+        )
+    ).fetchall()
+
+    return [transaction[0] for transaction in block_transactions]

@@ -49,11 +49,34 @@ function copyAddress() {
 async function setData() {
     let addressText = document.getElementById("address")
     let balanceText = document.getElementById("balance")
+    let nodes = document.getElementById("nodes")
 
     let walletData = await (await fetch("/get_wallet_data")).json()
 
     addressText.textContent = walletData["address"]
     balanceText.textContent = `${walletData["balance"]} POA`
+
+    for (const node of walletData["nodes"]) {
+        nodes.innerHTML += `<a class="dropdown-item" href="#" onclick="setNode(this)">${node}</a>`
+    }
+
+    let currentNode = localStorage.getItem("node")
+    let nodeButton = document.getElementById("dropdownMenuButton")
+
+    if (currentNode) {
+        nodeButton.textContent = currentNode
+    } else {
+        let randomNode = walletData["nodes"][Math.floor(Math.random() * walletData["nodes"].length)];
+        nodeButton.textContent = randomNode
+        localStorage.setItem("node", randomNode)
+    }
+}
+
+async function setNode(node) {
+    node = node.innerText
+    let nodeButton = document.getElementById("dropdownMenuButton")
+    nodeButton.textContent = node
+    localStorage.setItem("node", node)
 }
 
 

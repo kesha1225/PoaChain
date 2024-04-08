@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Poachain Кошелек</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <link href="../css/index.css" rel="stylesheet">
     <link href="../css/wallet.css" rel="stylesheet">
     <link href='https://fonts.googleapis.com/css?family=JetBrains Mono' rel='stylesheet'>
@@ -57,7 +60,9 @@
             </div>
 
             <button type="button" class="btn btn-primary" onclick="signMessage()">Создать подпись</button>
-            <button id="signButton" type="button" class="btn btn-primary" onclick="copySign()" hidden>Скопировать подпись</button>
+            <button id="signButton" type="button" class="btn btn-primary" onclick="copySign()" hidden>Скопировать
+                подпись
+            </button>
         </form>
     </div>
 </div>
@@ -85,7 +90,7 @@
 
 
 <div id="successPopup" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="2000"
-     style="position: fixed; top: 10px; right: 10px;">
+     style="position: fixed; bottom: 10px; right: 10px;">
     <div class="toast-header bg-success text-white">
         <strong class="mr-auto">Успешно скопировано!</strong>
         <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
@@ -99,7 +104,7 @@
 
 
 <div id="successPopupSign" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="2000"
-     style="position: fixed; top: 10px; right: 10px;">
+     style="position: fixed; bottom: 10px; right: 10px;">
     <div class="toast-header bg-success text-white">
         <strong class="mr-auto">Успешно скопировано!</strong>
         <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
@@ -119,8 +124,14 @@
     <button type="button" class="btn btn-primary" onclick="logout()">Выйти</button>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<div class="btn-group dropleft" style="position: absolute; top: 2%; right: 2%;">
+    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">
+        Выбор ноды
+    </button>
+    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="nodes">
+    </div>
+</div>
+
 </body>
 </html>

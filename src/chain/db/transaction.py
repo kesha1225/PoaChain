@@ -15,3 +15,12 @@ class Transaction(Base):
     transaction_hash = Column(String, unique=True, nullable=False)
     block_id = Column(Integer, ForeignKey("block.id"))
     block = relationship("Block", back_populates="transactions")
+
+    def to_dict(self) -> dict:
+        return {
+            "sender_address": self.sender_address,
+            "recipient_address": self.recipient_address,
+            "amount": self.amount,
+            "timestamp": self.timestamp,
+            "transaction_hash": self.transaction_hash,
+        }
