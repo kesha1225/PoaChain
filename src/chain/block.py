@@ -1,3 +1,5 @@
+import hashlib
+
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -37,7 +39,7 @@ async def get_last_block_timestamp(session: AsyncSession) -> int:
     if last_block is None:
         return -1
 
-    return last_block.block_number
+    return last_block.timestamp
 
 
 async def get_last_block_previous_hash() -> str:
@@ -104,3 +106,11 @@ async def add_new_blocks_from_node(
             await create_transaction(
                 transaction=transaction, block_id=new_block.id, with_commit=with_commit
             )
+
+
+def calculate_block_hash(block: BlockModel) -> str:
+    block_data = (
+        f"{block.block_number}{block.previous_hash}{block.authority_id}"
+        f"{block.merkle_root}{block.timestamp}"
+    )
+    return hashlib.sha256(block_data.encode()).hexdigest()

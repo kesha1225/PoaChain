@@ -14,5 +14,6 @@ YANDEX_NODE = NodeConstant(
 SBER_NODE = NodeConstant(
     title_id="Sber-1", url="http://127.0.0.1:3456", public_key="222"
 )
+GAZ_NODE = NodeConstant(title_id="GAZ-1", url="http://127.0.0.1:7890", public_key="333")
 
-ALL_NODES = [YANDEX_NODE, SBER_NODE]
+ALL_NODES = [YANDEX_NODE, SBER_NODE, GAZ_NODE]

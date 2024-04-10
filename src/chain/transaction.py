@@ -1,3 +1,5 @@
+import hashlib
+
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -61,3 +63,25 @@ async def get_block_transactions(
     ).fetchall()
 
     return [transaction[0] for transaction in block_transactions]
+
+
+@db_session
+async def get_unconfirmed_transactions(session: AsyncSession) -> list[Transaction]:
+    unconfirmed_transactions = (
+        await session.execute(select(Transaction).where(Transaction.block_id.is_(None)))
+    ).fetchall()
+
+    return [transaction[0] for transaction in unconfirmed_transactions]
+
+
+def calculate_block_merkle_root(transactions: list[Transaction]) -> str | None:
+    merkle_tree = [tx.transaction_hash for tx in transactions]
+    while len(merkle_tree) > 1:
+        merkle_tree = [
+            hashlib.sha256(
+                merkle_tree[i].encode() + merkle_tree[i + 1].encode()
+            ).hexdigest()
+            for i in range(0, len(merkle_tree), 2)
+        ]
+
+    return merkle_tree[0] if merkle_tree else None

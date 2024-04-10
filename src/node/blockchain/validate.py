@@ -2,8 +2,9 @@ import time
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from chain.block import get_last_block_timestamp, get_last_block
+from chain.block import get_last_block_timestamp, get_last_block, calculate_block_hash
 from chain.constants import GENESIS_BLOCK_PREVIOUS_HASH
+from chain.db.session import db_session
 from chain.transaction import calculate_balance
 from node.models.block import BlockModel
 from node.models.transaction import TransactionModel
@@ -36,6 +37,7 @@ async def validate_transaction(
     return True
 
 
+@db_session
 async def validate_block(session: AsyncSession, block: BlockModel):
     previous_block = await get_last_block(session=session)
 
@@ -53,7 +55,7 @@ async def validate_block(session: AsyncSession, block: BlockModel):
     if not is_genesis and block.timestamp < previous_block.timestamp:
         return False
 
-    if block.block_hash != block.calculate_block_hash():
+    if block.block_hash != calculate_block_hash(block=block):
         return False
 
     return True

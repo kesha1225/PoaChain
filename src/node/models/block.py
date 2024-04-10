@@ -1,4 +1,3 @@
-import datetime
 import hashlib
 
 import pydantic
@@ -8,19 +7,12 @@ from node.models.transaction import TransactionModel
 
 class BlockModel(pydantic.BaseModel):
     block_number: int
-    block_hash: str
+    block_hash: str | None = None
     previous_hash: str
-    merkle_root: str
+    merkle_root: str | None = None
     authority_id: str
     timestamp: int
-    transactions: list[TransactionModel]
-
-    def calculate_block_hash(self) -> str:
-        block_data = (
-            f"{self.block_number}{self.previous_hash}{self.authority_id}"
-            f"{self.merkle_root}{self.timestamp}"
-        )
-        return hashlib.sha256(block_data.encode()).hexdigest()
+    transactions: list[TransactionModel] | None = None
 
 
 class NewBlocksModel(pydantic.BaseModel):

@@ -30,7 +30,6 @@ async def process_latest_blocks(
     suitable_node_url: str,
     http_session: aiohttp.ClientSession,
     last_block_previous_hash: str,
-    bad_hashes: list[str],
 ) -> BlocksVerifyResult:
     latest_blocks = await get_blocks_until_hash_from_node(
         url=suitable_node_url,
@@ -39,13 +38,6 @@ async def process_latest_blocks(
     )
 
     for block in latest_blocks.blocks:
-        if block.block_hash in bad_hashes:
-            return BlocksVerifyResult(
-                status=False,
-                suitable_node_url=suitable_node_url,
-                bad_block_hash=block.block_hash,
-            )
-
         if not await validate_block(session=session, block=block):
             return BlocksVerifyResult(
                 status=False,
@@ -77,11 +69,11 @@ async def start_node(session: aiohttp.ClientSession):
     success = False
 
     bad_urls = []
-    bad_hashes = []
     while not success:
         suitable_node_url = await get_suitable_node_url(
             session=session, exclude_urls=bad_urls
         )
+        logging.info(f"Trying sync with {suitable_node_url}")
 
         if suitable_node_url is None:
             # мы одни синкать нечего
@@ -98,7 +90,6 @@ async def start_node(session: aiohttp.ClientSession):
                 last_block_previous_hash=last_block_previous_hash,
                 http_session=session,
                 suitable_node_url=suitable_node_url,
-                bad_hashes=bad_hashes,
             )
 
             sql_session.expunge_all()
@@ -107,8 +98,4 @@ async def start_node(session: aiohttp.ClientSession):
             await add_new_blocks_from_node(new_blocks=verify_result.new_blocks)
             return
 
-        bad_hashes.append(verify_result.bad_block_hash)
         bad_urls.append(verify_result.suitable_node_url)
-
-
-# todo: проверить с третьей нодой что она одну заьракует а с третьей синк

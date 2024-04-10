@@ -4,6 +4,7 @@ import logging
 import aiohttp
 from fastapi import FastAPI
 
+from .blockchain.block_processing import process_blocks_forever
 from .blockchain.startup import start_node
 from .routers import alive_router, block_router, receive_transaction_router
 
@@ -20,6 +21,7 @@ async def _startapp():
 @app.on_event("startup")
 async def startup_event():
     asyncio.create_task(_startapp())
+    asyncio.create_task(process_blocks_forever())
 
 
 logging.basicConfig(level="INFO")
