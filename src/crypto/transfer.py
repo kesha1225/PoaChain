@@ -1,37 +1,28 @@
 import time
-from typing import Union, Optional
+from typing import Union
 from base64 import b64encode
 from random import random
+
+from nacl.bindings import crypto_sign_open
 from nacl.bindings.crypto_sign import crypto_sign
 
+from chain_config import ChainConfig
 from crypto import bech32
+from crypto.bech32 import Encoding
 
 
-def to_public_key(address: str) -> list[int]:
+def address_to_public_key(address: str) -> list[int]:
     prefix, list_int, encoding = bech32.bech32_decode(address)
     public_key = bech32.convertbits(list_int, 5, 8, False)
     return public_key
 
 
-def set_version(trx: list[int], version: int) -> None:
-    trx.append(version)
-
-
-def prefix_to_version(prefix: str) -> Optional[int]:
-    if prefix == "genesis":
-        return 0
-    if len(prefix) not in (3, 5):
-        return None
-
-    to_check = []
-    for i in range(len(prefix)):
-        modifier = 47 if any(char.isdigit() for char in prefix[i]) else 96
-        to_check.append(ord(prefix[i]) - modifier)
-
-    if len(to_check) > 3:
-        return 32768 + ((to_check[3] << 5) + to_check[4])
-
-    return (to_check[0] << 10) + (to_check[1] << 5) + to_check[2]
+def public_key_to_address(public_key: list[int]) -> str:
+    list_int = bech32.convertbits(public_key, 8, 5, True)
+    address = bech32.bech32_encode(
+        ChainConfig.address_prefix, list_int, Encoding.BECH32
+    )
+    return address
 
 
 def to_2(value: int) -> list[int]:
@@ -55,6 +46,7 @@ def set_list(trx: list[int], address: list[int]) -> None:
 def set_amount(trx: list[int], amount: Union[int, float]) -> None:
     amount_to_bytes: bytes = int(amount).to_bytes(8, "big")
     to_list: list[int] = [int(i) for i in amount_to_bytes]
+
     trx += to_list
 
 
@@ -64,9 +56,11 @@ def sign(trx: list[int], sk: list[int]) -> None:
 
 
 def sign_transaction(trx: list[int], sk: list[int]) -> None:
-    seconds = int(time.time()) - 10
-    trx += to_4(seconds)
+    timestamp = int(time.time())
+
+    trx += to_4(timestamp)
     trx += to_4(int(random() * 9999))
+
     trx.append(0)
     sign(trx, sk)
 
@@ -76,24 +70,14 @@ def transfer_coins(
     private_key: list[int],
     target_address: str,
     amount: Union[int, float],
-    prefix: str,
 ) -> str:
     trx: list[int] = []
-    set_version(trx, 8)
 
-    prefix_version = prefix_to_version(prefix)
-    if prefix_version is None:
-        return ""
+    set_list(trx, public_key)
 
-    prefix_binary = to_2(prefix_version)
-    from_addr = prefix_binary + public_key
-    set_list(trx, from_addr)
-
-    to_pk = to_public_key(target_address)
-    to_addr = prefix_binary + to_pk
-    set_list(trx, to_addr)
-
-    set_amount(trx, amount * 100)
+    to_pk = address_to_public_key(target_address)
+    set_list(trx, to_pk)
+    set_amount(trx, amount)
 
     sign_transaction(trx, private_key)
 

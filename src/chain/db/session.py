@@ -13,6 +13,9 @@ async_session = async_sessionmaker(engine, expire_on_commit=False)
 def db_session(func):
     @wraps(func)
     async def wrapper(*args, **kwargs):
+        if "session" in kwargs:
+            return await func(*args, **kwargs)
+
         async with async_session() as session:
             result = await func(session, *args, **kwargs)
         return result

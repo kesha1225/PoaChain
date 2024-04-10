@@ -1,10 +1,10 @@
 import base64
 
-from nacl.exceptions import BadSignatureError
-from nacl.bindings import crypto_sign, crypto_sign_open
+from cryptography.hazmat.primitives.asymmetric import ed25519
+from nacl.bindings import crypto_sign
 
+from chain.constants import PUBLIC_KEY_LENGTH, TRANSACTION_PURE_LENGTH
 from crypto.converter import hex_to_int_list
-from crypto.transfer import to_public_key
 
 
 def sign_message(message: str, private_key: str) -> str:
@@ -15,14 +15,15 @@ def sign_message(message: str, private_key: str) -> str:
     return base64.b64encode(result[: -len(encoded_message)]).decode()
 
 
-def sign_verify(signature: str, original_message: str, address: str) -> bool:
-    public_key = to_public_key(address)
-    base64_sig = base64.b64decode(signature)
+def verify_sign(transaction: list[int]) -> bool:
+    public_key = transaction[:PUBLIC_KEY_LENGTH]
+    original_msg = transaction[:TRANSACTION_PURE_LENGTH]
+    sign = transaction[TRANSACTION_PURE_LENGTH:]
 
-    base64_sig += original_message.encode()
+    pk2 = ed25519.Ed25519PublicKey.from_public_bytes(bytes(public_key))
+
     try:
-        result = crypto_sign_open(signed=base64_sig, pk=bytes(public_key))
-    except BadSignatureError:
+        pk2.verify(bytes(sign), bytes(original_msg))
+        return True
+    except Exception as e:
         return False
-
-    return result.decode() == original_message

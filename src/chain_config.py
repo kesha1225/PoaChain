@@ -21,3 +21,6 @@ class ChainConfig:
 
 class NodeConfig:
     title_id = os.getenv("NODE_ID")
+    MONEY_ISSUER_ADDRESS = (
+        "poa1pvffe3vy778xaqlmen8frhnsz00yl385hq756uyypndy2q2ya7wstxsuym"
+    )

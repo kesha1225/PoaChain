@@ -1,7 +1,5 @@
 from fastapi import APIRouter
 
-from web.file_response import get_html_file_data
-
 router = APIRouter()
 
 

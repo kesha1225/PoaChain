@@ -29,7 +29,7 @@ def upgrade() -> None:
         sa.Column("previous_hash", sa.String(), nullable=False),
         sa.Column("nonce", sa.String(), nullable=False),
         sa.Column("merkle_root", sa.String(), nullable=False),
-        sa.Column("timestamp", sa.DateTime(), nullable=False),
+        sa.Column("timestamp", sa.BigInteger(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("block_hash"),
         sa.UniqueConstraint("block_number"),
@@ -43,7 +43,7 @@ def upgrade() -> None:
         sa.Column("sender_address", sa.String(), nullable=False),
         sa.Column("recipient_address", sa.String(), nullable=False),
         sa.Column("amount", sa.DECIMAL(precision=2), nullable=False),
-        sa.Column("timestamp", sa.DateTime(), nullable=False),
+        sa.Column("timestamp", sa.BigInteger(), nullable=False),
         sa.Column("transaction_hash", sa.String(), nullable=False),
         sa.Column("block_id", sa.Integer(), nullable=True),
         sa.ForeignKeyConstraint(

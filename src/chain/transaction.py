@@ -1,25 +1,18 @@
-import datetime
-import hashlib
-
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from chain.db import Transaction
 from chain.db.session import db_session
+from chain_config import NodeConfig
 from node.models.transaction import TransactionModel
-
-
-def generate_transaction_hash(transaction: Transaction) -> str:
-    transaction_str = (
-        f"{transaction.sender_address}{transaction.recipient_address}"
-        f"{transaction.amount}{transaction.timestamp}"
-    )
-    return hashlib.sha256(transaction_str.encode()).hexdigest()
 
 
 @db_session
 async def create_transaction(
-    session: AsyncSession, transaction: TransactionModel, block_id: int
+    session: AsyncSession,
+    transaction: TransactionModel,
+    block_id: int | None = None,
+    with_commit: bool = True,
 ) -> Transaction:
     new_transaction = Transaction(
         sender_address=transaction.sender_address,
@@ -31,13 +24,17 @@ async def create_transaction(
     )
     session.add(new_transaction)
 
-    await session.commit()
+    if with_commit:
+        await session.commit()
 
     return new_transaction
 
 
 @db_session
-async def calculate_balance(session: AsyncSession, address: str):
+async def calculate_balance(session: AsyncSession, address: str) -> int | float:
+    if address == NodeConfig.MONEY_ISSUER_ADDRESS:
+        return float("inf")
+
     sent_amount_query = select(func.sum(Transaction.amount)).where(
         Transaction.sender_address == address
     )

@@ -6,12 +6,17 @@ from node.api.block import get_last_block_number_from_node
 from node_constants import ALL_NODES
 
 
-async def get_suitable_node_url(session: aiohttp.ClientSession) -> str | None:
+async def get_suitable_node_url(
+    session: aiohttp.ClientSession, exclude_urls: list[str]
+) -> str | None:
     biggest_block_number = -1
     suitable_node_url = None
 
     for node in ALL_NODES:
         if node.title_id == NodeConfig.title_id:
+            continue
+
+        if node.url in exclude_urls:
             continue
 
         if not await is_node_online(url=node.url, session=session):

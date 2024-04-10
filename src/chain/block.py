@@ -22,8 +22,18 @@ async def get_last_block(session: AsyncSession) -> Block | None:
     return last_block[0]
 
 
-async def get_last_block_number() -> int:
-    last_block = await get_last_block()
+@db_session
+async def get_last_block_number(session: AsyncSession) -> int:
+    last_block = await get_last_block(session=session)
+    if last_block is None:
+        return -1
+
+    return last_block.block_number
+
+
+@db_session
+async def get_last_block_timestamp(session: AsyncSession) -> int:
+    last_block = await get_last_block(session=session)
     if last_block is None:
         return -1
 
@@ -64,7 +74,9 @@ async def get_blocks_until_previous_hash(
 
 
 @db_session
-async def create_block(session: AsyncSession, block: BlockModel) -> Block:
+async def create_block(
+    session: AsyncSession, block: BlockModel, with_commit: bool = True
+) -> Block:
     new_block = Block(
         block_number=block.block_number,
         block_hash=block.block_hash,
@@ -76,13 +88,19 @@ async def create_block(session: AsyncSession, block: BlockModel) -> Block:
 
     session.add(new_block)
 
-    await session.commit()
+    if with_commit:
+        await session.commit()
 
     return new_block
 
 
-async def add_new_blocks_from_node(new_blocks: NewBlocksModel) -> None:
+async def add_new_blocks_from_node(
+    new_blocks: NewBlocksModel, with_commit: bool = True
+) -> None:
     for block in new_blocks.blocks:
-        new_block = await create_block(block=block)
+        new_block = await create_block(block=block, with_commit=with_commit)
+
         for transaction in block.transactions:
-            await create_transaction(transaction=transaction, block_id=new_block.id)
+            await create_transaction(
+                transaction=transaction, block_id=new_block.id, with_commit=with_commit
+            )

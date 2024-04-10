@@ -1,5 +1,5 @@
 import hashlib
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, BigInteger
 from sqlalchemy.orm import relationship
 
 from .transaction import Transaction
@@ -17,7 +17,7 @@ class Block(Base):
     merkle_root = Column(String, unique=True, nullable=False)
     authority_id = Column(String, nullable=False)
 
-    timestamp = Column(DateTime, nullable=False)
+    timestamp = Column(BigInteger, nullable=False)
 
     transactions = relationship("Transaction", back_populates="block")
 
@@ -31,10 +31,6 @@ class Block(Base):
                 for i in range(0, len(merkle_tree), 2)
             ]
         self.merkle_root = merkle_tree[0]
-
-    def calculate_block_hash(self) -> str:
-        block_data = f"{self.block_number}{self.previous_hash}{self.nonce}{self.merkle_root}{self.timestamp}"
-        return hashlib.sha256(block_data.encode()).hexdigest()
 
     def to_dict(self, transactions: list[Transaction]) -> dict:
         return {
