@@ -1,25 +1,32 @@
-import time
-
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from chain.block import get_last_block_timestamp, get_last_block, calculate_block_hash
+from chain.block import get_last_block, calculate_block_hash, create_block
 from chain.constants import GENESIS_BLOCK_PREVIOUS_HASH
 from chain.db.session import db_session
-from chain.transaction import calculate_balance
-from node.models.block import BlockModel
+from chain.timestamps import get_current_accurate_timestamp
+from chain.transaction import (
+    calculate_balance,
+    create_transaction,
+    calculate_transaction_hash,
+)
+from node.models.block import BlockModel, NewBlocksModel
 from node.models.transaction import TransactionModel
+from node.structs.block import BlocksVerifyResult
 
 
+@db_session
 async def validate_transaction(
     session: AsyncSession, transaction: TransactionModel
 ) -> bool:
-    if transaction.transaction_hash != transaction.generate_transaction_hash():
+    if transaction.transaction_hash != calculate_transaction_hash(
+        transaction=transaction
+    ):
         return False
 
     if transaction.sender_address == transaction.recipient_address:
         return False
 
-    if transaction.timestamp > int(time.time()):
+    if transaction.timestamp > get_current_accurate_timestamp():
         return False
 
     sender_balance = await calculate_balance(
@@ -27,11 +34,6 @@ async def validate_transaction(
     )
 
     if sender_balance < transaction.amount:
-        return False
-
-    last_block_timestamp = await get_last_block_timestamp(session=session)
-
-    if last_block_timestamp != -1 and last_block_timestamp > transaction.timestamp:
         return False
 
     return True
@@ -49,7 +51,7 @@ async def validate_block(session: AsyncSession, block: BlockModel):
     if not is_genesis and block.block_number - 1 != previous_block.block_number:
         return False
 
-    if block.timestamp > int(time.time()):
+    if block.timestamp > get_current_accurate_timestamp():
         return False
 
     if not is_genesis and block.timestamp < previous_block.timestamp:
@@ -59,3 +61,27 @@ async def validate_block(session: AsyncSession, block: BlockModel):
         return False
 
     return True
+
+
+async def validate_block_with_transactions(
+    session: AsyncSession,
+    block: BlockModel,
+) -> BlocksVerifyResult:
+    if not await validate_block(session=session, block=block):
+        print(f"bad block verif {block}")
+        return BlocksVerifyResult(
+            status=False,
+        )
+
+    for transaction in block.transactions:
+        if not await validate_transaction(session=session, transaction=transaction):
+            print(f"bad trans verif {transaction}")
+            return BlocksVerifyResult(status=False)
+
+        await create_transaction(
+            session=session, transaction=transaction, with_commit=False
+        )
+
+    await create_block(session=session, block=block, with_commit=False)
+
+    return BlocksVerifyResult(status=True, new_blocks=NewBlocksModel(blocks=[block]))

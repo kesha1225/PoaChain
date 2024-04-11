@@ -3,10 +3,10 @@ import time
 from fastapi import APIRouter
 from starlette.requests import Request
 
-from chain.block import get_last_block_timestamp
+from chain.timestamps import get_current_accurate_timestamp
 from chain.transaction import calculate_balance, create_transaction
 from crypto.converter import expand_transaction_from_request, normalize_transaction
-from crypto.sign import verify_sign
+from crypto.sign import verify_transaction_sign
 
 
 router = APIRouter()
@@ -16,7 +16,7 @@ router = APIRouter()
 async def add_to_mempool_handler(request: Request):
     transaction_data = normalize_transaction((await request.json())["data"])
 
-    is_valid = verify_sign(transaction=transaction_data)
+    is_valid = verify_transaction_sign(transaction=transaction_data)
 
     if not is_valid:
         return {
@@ -43,25 +43,12 @@ async def add_to_mempool_handler(request: Request):
             "description": "Недостаточно средств.",
         }
 
-    if transaction_model.timestamp > int(time.time()):
+    if transaction_model.timestamp > get_current_accurate_timestamp():
         return {
             "status": False,
             "code": "Invalid timestamp",
             "description": "Ошибка. Транзакция из будущего.",
         }
 
-    last_block_timestamp = await get_last_block_timestamp()
-
-    if (
-        last_block_timestamp != -1
-        and last_block_timestamp > transaction_model.timestamp
-    ):
-        return {
-            "status": False,
-            "code": "Invalid timestamp",
-            "description": "Ошибка. Устаревшая транзакция.",
-        }
-
     await create_transaction(transaction=transaction_model)
-
     return {"status": True, "hash": transaction_model.transaction_hash}

@@ -1,6 +1,6 @@
 import hashlib
 
-from sqlalchemy import func, select
+from sqlalchemy import func, select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from chain.db import Transaction
@@ -34,7 +34,7 @@ async def create_transaction(
 
 @db_session
 async def calculate_balance(session: AsyncSession, address: str) -> int | float:
-    if address == NodeConfig.MONEY_ISSUER_ADDRESS:
+    if address == NodeConfig.money_issuer_address:
         return float("inf")
 
     sent_amount_query = select(func.sum(Transaction.amount)).where(
@@ -66,7 +66,7 @@ async def get_block_transactions(
 
 
 @db_session
-async def get_unconfirmed_transactions(session: AsyncSession) -> list[Transaction]:
+async def get_unconfirmed_transactions(session: AsyncSession) -> list[TransactionModel]:
     unconfirmed_transactions = (
         await session.execute(select(Transaction).where(Transaction.block_id.is_(None)))
     ).fetchall()
@@ -74,7 +74,15 @@ async def get_unconfirmed_transactions(session: AsyncSession) -> list[Transactio
     return [transaction[0] for transaction in unconfirmed_transactions]
 
 
-def calculate_block_merkle_root(transactions: list[Transaction]) -> str | None:
+@db_session
+async def delete_transaction(session: AsyncSession, transaction_id: int) -> None:
+    await session.execute(delete(Transaction).where(Transaction.id == transaction_id))
+    await session.commit()
+
+
+def calculate_block_merkle_root(
+    transactions: list[Transaction | TransactionModel],
+) -> str | None:
     merkle_tree = [tx.transaction_hash for tx in transactions]
     while len(merkle_tree) > 1:
         merkle_tree = [
@@ -85,3 +93,11 @@ def calculate_block_merkle_root(transactions: list[Transaction]) -> str | None:
         ]
 
     return merkle_tree[0] if merkle_tree else None
+
+
+def calculate_transaction_hash(transaction: Transaction | TransactionModel) -> str:
+    transaction_str = (
+        f"{transaction.sender_address}{transaction.recipient_address}"
+        f"{transaction.amount}{transaction.timestamp}"
+    )
+    return hashlib.sha256(transaction_str.encode()).hexdigest()

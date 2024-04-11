@@ -1,10 +1,10 @@
 import hashlib
 
-from sqlalchemy import select, text
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from chain.constants import GENESIS_BLOCK_PREVIOUS_HASH, NO_BLOCK_PREVIOUS_HASH
-from chain.db import Block
+from chain.constants import NO_BLOCK_PREVIOUS_HASH
+from chain.db import Block, Transaction
 from chain.db.session import db_session
 from chain.transaction import create_transaction
 from node.models.block import NewBlocksModel, BlockModel
@@ -114,3 +114,16 @@ def calculate_block_hash(block: BlockModel) -> str:
         f"{block.merkle_root}{block.timestamp}"
     )
     return hashlib.sha256(block_data.encode()).hexdigest()
+
+
+@db_session
+async def update_transactions_for_block(
+    session: AsyncSession, block_id: int, transactions: list[Transaction]
+) -> None:
+    await session.execute(
+        update(Transaction)
+        .values(block_id=block_id)
+        .where(Transaction.id.in_([transaction.id for transaction in transactions]))
+    )
+
+    await session.commit()

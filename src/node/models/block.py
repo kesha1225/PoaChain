@@ -1,7 +1,6 @@
-import hashlib
-
 import pydantic
 
+from chain.db import Block
 from node.models.transaction import TransactionModel
 
 

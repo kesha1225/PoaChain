@@ -3,9 +3,9 @@ from typing import Union
 from base64 import b64encode
 from random import random
 
-from nacl.bindings import crypto_sign_open
 from nacl.bindings.crypto_sign import crypto_sign
 
+from chain.timestamps import get_current_accurate_timestamp
 from chain_config import ChainConfig
 from crypto import bech32
 from crypto.bech32 import Encoding
@@ -56,7 +56,7 @@ def sign(trx: list[int], sk: list[int]) -> None:
 
 
 def sign_transaction(trx: list[int], sk: list[int]) -> None:
-    timestamp = int(time.time())
+    timestamp = get_current_accurate_timestamp()
 
     trx += to_4(timestamp)
     trx += to_4(int(random() * 9999))

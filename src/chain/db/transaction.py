@@ -16,7 +16,7 @@ class Transaction(Base):
     block_id = Column(Integer, ForeignKey("block.id"))
     block = relationship("Block", back_populates="transactions")
 
-    def to_dict(self) -> dict:
+    def dict(self) -> dict:
         return {
             "sender_address": self.sender_address,
             "recipient_address": self.recipient_address,

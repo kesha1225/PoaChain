@@ -8,6 +8,7 @@ from chain.constants import (
     RANDOM_DATA_LENGTH,
     SIGN_LENGTH,
 )
+from chain.transaction import calculate_transaction_hash
 from crypto.transfer import public_key_to_address
 from node.models.transaction import TransactionModel
 
@@ -53,5 +54,7 @@ def expand_transaction_from_request(transaction: list[int]) -> TransactionModel:
         amount=amount,
         timestamp=timestamp,
     )
-    transaction_model.transaction_hash = transaction_model.generate_transaction_hash()
+    transaction_model.transaction_hash = calculate_transaction_hash(
+        transaction=transaction_model
+    )
     return transaction_model

@@ -1,4 +1,3 @@
-import dataclasses
 import logging
 
 import aiohttp
@@ -14,15 +13,7 @@ from chain.transaction import create_transaction
 from node.api.block import get_blocks_until_hash_from_node
 from node.blockchain.balancer import get_suitable_node_url
 from node.blockchain.validate import validate_transaction, validate_block
-from node.models.block import NewBlocksModel
-
-
-@dataclasses.dataclass
-class BlocksVerifyResult:
-    status: bool
-    suitable_node_url: str
-    bad_block_hash: str | None = None
-    new_blocks: NewBlocksModel | None = None
+from node.structs.block import BlocksVerifyResult
 
 
 async def process_latest_blocks(
@@ -42,7 +33,6 @@ async def process_latest_blocks(
             return BlocksVerifyResult(
                 status=False,
                 suitable_node_url=suitable_node_url,
-                bad_block_hash=block.block_hash,
             )
 
         for transaction in block.transactions:
@@ -50,7 +40,6 @@ async def process_latest_blocks(
                 return BlocksVerifyResult(
                     status=False,
                     suitable_node_url=suitable_node_url,
-                    bad_block_hash=block.block_hash,
                 )
 
             await create_transaction(
