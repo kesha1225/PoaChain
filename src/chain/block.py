@@ -25,6 +25,18 @@ async def get_last_block(session: AsyncSession) -> Block | None:
 
 
 @db_session
+async def get_block_by_hash(session: AsyncSession, block_hash: str) -> Block | None:
+    block = (
+        await session.execute(select(Block).where(Block.block_hash == block_hash))
+    ).first()
+
+    if block is None:
+        return None
+
+    return block[0]
+
+
+@db_session
 async def get_last_block_number(session: AsyncSession) -> int:
     last_block = await get_last_block(session=session)
     if last_block is None:

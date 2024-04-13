@@ -41,7 +41,9 @@ async function login() {
 
 
 async function logout() {
-    localStorage.clear()
+    localStorage.removeItem(uniqueKey('privateKey'))
+    localStorage.removeItem(uniqueKey('publicKey'))
+    localStorage.removeItem(uniqueKey('address'))
     window.location.replace("/");
 }
 

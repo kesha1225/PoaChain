@@ -3,6 +3,7 @@ from fastapi import APIRouter
 from starlette.requests import Request
 from starlette.responses import HTMLResponse
 
+from node.api.block import get_last_block_number_from_node
 from node.api.status import is_node_online
 from node.api.user import get_address_balance
 from node.utils import get_node_by_id
@@ -21,7 +22,7 @@ async def wallet_handler():
 
 @router.post("/get_wallet_data")
 async def get_wallet_data_handler(request: Request):
-    request_data = (await request.json())
+    request_data = await request.json()
     node = request_data["node"]
 
     address = decrypt_text(request_data["address"])
@@ -34,24 +35,43 @@ async def get_wallet_data_handler(request: Request):
     else:
         is_online = await is_node_online(url=node.url, session=session)
 
+    nodes = []
+
+    for _node in ALL_NODES:
+        _is_node_online = await is_node_online(url=_node.url, session=session)
+        if _is_node_online:
+            blocks_count = await get_last_block_number_from_node(
+                url=_node.url, session=session
+            )
+        else:
+            blocks_count = -1
+
+        nodes.append(
+            {
+                "title_id": _node.title_id,
+                "is_online": _is_node_online,
+                "blocks_count": blocks_count,
+            }
+        )
+
     if not is_online:
         await session.close()
         return {
             "status": False,
+            "node_none": node is None,
             "description": "Node not online",
             "address": address,
             "balance": "Ошибка подключения",
-            "nodes": [node.title_id for node in ALL_NODES],
+            "nodes": nodes,
         }
 
-    balance = await get_address_balance(
-            url=node.url, session=session, address=address
-        )
+    balance = await get_address_balance(url=node.url, session=session, address=address)
     if isinstance(balance, int):
         balance = round(balance / 100, 2)
     return {
         "status": True,
+        "node_none": node is None,
         "address": address,
         "balance": balance,
-        "nodes": [node.title_id for node in ALL_NODES],
+        "nodes": nodes,
     }

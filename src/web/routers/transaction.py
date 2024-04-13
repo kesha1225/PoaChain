@@ -18,14 +18,18 @@ router = APIRouter()
 async def create_transaction(request: Request):
     transaction_data = await request.json()
 
-    public_key = list(bytes(hex_to_int_list(decrypt_text(transaction_data["publicKey"]))))
-    private_key = list(bytes(hex_to_int_list(decrypt_text(transaction_data["privateKey"]))))
+    public_key = list(
+        bytes(hex_to_int_list(decrypt_text(transaction_data["publicKey"])))
+    )
+    private_key = list(
+        bytes(hex_to_int_list(decrypt_text(transaction_data["privateKey"])))
+    )
 
     encoded_transaction = transfer_coins(
         public_key=public_key,
         private_key=private_key,
         target_address=transaction_data["address"],
-        amount=int(float(transaction_data["amount"]) * 100)
+        amount=int(float(transaction_data["amount"]) * 100),
     )
 
     return {"encoded_transaction": encoded_transaction}
@@ -33,7 +37,7 @@ async def create_transaction(request: Request):
 
 @router.post("/send_transaction")
 async def send_transaction(request: Request):
-    transaction_data = (await request.json())
+    transaction_data = await request.json()
 
     encoded_transaction = transaction_data["data"]
     node = transaction_data["node"]

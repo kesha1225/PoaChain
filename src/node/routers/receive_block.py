@@ -68,12 +68,12 @@ async def receive_block_handler(request: Request):
 
         sql_session.expunge_all()
 
+    if await is_previous_node(session=aiohttp.ClientSession(), node=node):
+        request.app.is_waiting = False
+
     if not verify_result.status:
         return {"status": False, "description": "Bad verify"}
 
     await add_new_blocks_from_node(new_blocks=verify_result.new_blocks)
-
-    if await is_previous_node(session=aiohttp.ClientSession(), node=node):
-        request.app.is_waiting = False
 
     return {"status": True}

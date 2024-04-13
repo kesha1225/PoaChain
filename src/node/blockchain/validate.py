@@ -1,6 +1,11 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from chain.block import get_last_block, calculate_block_hash, create_block
+from chain.block import (
+    get_last_block,
+    calculate_block_hash,
+    create_block,
+    get_block_by_hash,
+)
 from chain.constants import GENESIS_BLOCK_PREVIOUS_HASH
 from chain.db.session import db_session
 from chain.timestamps import get_current_accurate_timestamp
@@ -30,7 +35,9 @@ async def validate_transaction(
         return False
 
     sender_balance = await calculate_balance(
-        session=session, address=transaction.sender_address
+        session=session,
+        address=transaction.sender_address,
+        exclude_hash=transaction.transaction_hash,
     )
 
     if sender_balance < transaction.amount:
@@ -41,6 +48,10 @@ async def validate_transaction(
 
 @db_session
 async def validate_block(session: AsyncSession, block: BlockModel):
+    is_block_exists = await get_block_by_hash(block_hash=block.block_hash) is not None
+    if is_block_exists:
+        return False
+
     previous_block = await get_last_block(session=session)
 
     is_genesis = block.previous_hash == GENESIS_BLOCK_PREVIOUS_HASH

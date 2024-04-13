@@ -39,6 +39,20 @@ def to_4(value: int) -> list[int]:
     return res
 
 
+def to_8(value: int) -> list[int]:
+    res = [
+        (value & 0xFF00000000000000) >> 56,
+        (value & 0x00FF000000000000) >> 48,
+        (value & 0x0000FF0000000000) >> 40,
+        (value & 0x000000FF00000000) >> 32,
+        (value & 0x00000000FF000000) >> 24,
+        (value & 0x0000000000FF0000) >> 16,
+        (value & 0x000000000000FF00) >> 8,
+        (value & 0x00000000000000FF) >> 0,
+    ]
+    return res
+
+
 def set_list(trx: list[int], address: list[int]) -> None:
     trx += address
 
@@ -58,7 +72,7 @@ def sign(trx: list[int], sk: list[int]) -> None:
 def sign_transaction(trx: list[int], sk: list[int]) -> None:
     timestamp = get_current_accurate_timestamp()
 
-    trx += to_4(timestamp)
+    trx += to_8(timestamp)
     trx += to_4(int(random() * 9999))
 
     trx.append(0)

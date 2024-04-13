@@ -2,6 +2,7 @@ import hashlib
 
 from sqlalchemy import func, select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql.operators import and_
 
 from chain.db import Transaction
 from chain.db.session import db_session
@@ -33,17 +34,25 @@ async def create_transaction(
 
 
 @db_session
-async def calculate_balance(session: AsyncSession, address: str) -> int | float:
+async def calculate_balance(
+    session: AsyncSession, address: str, exclude_hash: str | None = None
+) -> int | float:
     if address == NodeConfig.money_issuer_address:
         return float("inf")
 
     sent_amount_query = select(func.sum(Transaction.amount)).where(
-        Transaction.sender_address == address
+        and_(
+            Transaction.sender_address == address,
+            Transaction.transaction_hash != exclude_hash,
+        ),
     )
     sent_amount = await session.scalar(sent_amount_query)
 
     received_amount_query = select(func.sum(Transaction.amount)).where(
-        Transaction.recipient_address == address
+        and_(
+            Transaction.recipient_address == address,
+            Transaction.transaction_hash != exclude_hash,
+        ),
     )
     received_amount = await session.scalar(received_amount_query)
 

@@ -25,6 +25,13 @@ async def add_to_mempool_handler(request: Request):
 
     transaction_model = expand_transaction_from_request(transaction=transaction_data)
 
+    if transaction_model.amount < 1:
+        return {
+            "status": False,
+            "code": "Bad amount",
+            "description": "Слишком маленькая сумма.",
+        }
+
     if transaction_model.sender_address == transaction_model.recipient_address:
         return {
             "status": False,
@@ -32,7 +39,10 @@ async def add_to_mempool_handler(request: Request):
             "description": "Нельзя отправить монеты самому себе.",
         }
 
-    sender_balance = await calculate_balance(address=transaction_model.sender_address)
+    sender_balance = await calculate_balance(
+        address=transaction_model.sender_address,
+        exclude_hash=transaction_model.transaction_hash,
+    )
 
     if sender_balance < transaction_model.amount:
         return {

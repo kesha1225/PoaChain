@@ -1,10 +1,21 @@
+let updateAll = window.setInterval(async function () {
+    console.log("update")
+    await setData(true)
+}, 3000);
+
+
+function setAll() {
+    document.getElementById("amount").value =
+        document.getElementById("balance").innerText.split(" ")[0]
+}
+
 function isvalidAddress(address) {
     return (address.startsWith("poa") && address.length === 62
         && address !== document.getElementById("address").textContent);
 }
 
 function isvalidAmount(amount) {
-    return (!isNaN(amount));
+    return (!isNaN(amount) && parseFloat(amount) >= 0.01);
 }
 
 function confirmSend() {
@@ -48,19 +59,18 @@ async function sendTransaction() {
     let targetAddress = document.getElementById("recipient").value
     let targetAmount = document.getElementById("amount").value
 
-    console.log(targetAddress)
     let transaction = (await (await fetch("/create_transaction", {
         method: 'POST', headers: {
             'Content-Type': 'application/json;charset=utf-8'
         },
-        body: JSON.stringify({address: targetAddress, amount: targetAmount,
-        publicKey: localStorage.getItem(uniqueKey("publicKey")),
-            privateKey: localStorage.getItem(uniqueKey("privateKey"))})
+        body: JSON.stringify({
+            address: targetAddress, amount: targetAmount,
+            publicKey: localStorage.getItem(uniqueKey("publicKey")),
+            privateKey: localStorage.getItem(uniqueKey("privateKey"))
+        })
     })).json())["encoded_transaction"]
 
     let currentNode = localStorage.getItem(uniqueKey("node"))
-
-    console.log(currentNode)
 
     let response = await (await fetch("/send_transaction", {
         method: 'POST', headers: {
@@ -69,18 +79,32 @@ async function sendTransaction() {
         body: JSON.stringify({data: transaction, node: currentNode})
     })).json()
 
-
-    console.log(response)
     if (!response["status"]) {
+        document.getElementById("errorNodeDesc").innerText = "Не удалось отправить транзакцию. Нода недоступна."
         $("#errorPopupNodeSend").toast('show'); // Показываем popup
         setTimeout(function () {
             $("#errorPopupNodeSend").toast('hide'); // Скрываем popup через 2 секунды
         }, 2000);
-        return
-    }
-}
+    } else if (!response["result"]["status"]) {
+        document.getElementById("errorNodeDesc").innerText = response["result"]["description"]
 
-let currentNodes = []
+        $("#errorPopupNodeSend").toast('show'); // Показываем popup
+        setTimeout(function () {
+            $("#errorPopupNodeSend").toast('hide'); // Скрываем popup через 2 секунды
+        }, 2000);
+    } else {
+        document.getElementById("recipient").value = ""
+        document.getElementById("amount").value = ""
+
+
+        $("#successPopupNodeSend").toast('show'); // Показываем popup
+        setTimeout(function () {
+            $("#successPopupNodeSend").toast('hide'); // Скрываем popup через 2 секунды
+        }, 2000);
+        await setData(true)
+    }
+
+}
 
 
 function openTab(tabName) {
@@ -120,8 +144,7 @@ function copyAddress() {
         });
 }
 
-
-async function setData() {
+async function setData(forUpdate = false) {
     let addressText = document.getElementById("address")
     let balanceText = document.getElementById("balance")
     let nodes = document.getElementById("nodes")
@@ -132,49 +155,63 @@ async function setData() {
         method: 'POST', headers: {
             'Content-Type': 'application/json;charset=utf-8'
         },
-        body: JSON.stringify({node: currentNode,
-            address: localStorage.getItem(uniqueKey("address"))})
+        body: JSON.stringify({
+            node: currentNode,
+            address: localStorage.getItem(uniqueKey("address"))
+        })
     })).json()
 
-    for (const node of walletData["nodes"]) {
-        if (currentNodes.includes(node)) {
-            continue
-        }
-
-        currentNodes.push(node)
-        nodes.innerHTML += `<a class="dropdown-item" href="#" onclick="setNode(this)">${node}</a>`
-    }
-
     let nodeButton = document.getElementById("dropdownMenuButton")
-    if (!currentNode) {
-        let randomNode = walletData["nodes"][Math.floor(Math.random() * walletData["nodes"].length)];
-        nodeButton.textContent = randomNode
-        localStorage.setItem(uniqueKey("node"), randomNode)
-    }
 
-    if (!walletData["status"]) {
+    if (!walletData["status"] && !walletData["node_none"] && !forUpdate) {
+        document.getElementById("errorNodeText").innerText = `Не получилось подключиться к ноде ${currentNode}. Выберите другую.`
         $("#errorPopupNode").toast('show'); // Показываем popup
         setTimeout(function () {
             $("#errorPopupNode").toast('hide'); // Скрываем popup через 2 секунды
         }, 2000);
     }
 
+    if (walletData["status"] && !forUpdate) {
+        document.getElementById("successNodeText").innerText = `Успешно подключились к ноде ${currentNode}`
+        $("#successChangeNode").toast('show');
+        setTimeout(function () {
+            $("#successChangeNode").toast('hide');
+        }, 2000);
+    }
+
     addressText.textContent = walletData["address"]
     balanceText.textContent = `${walletData["balance"]} POA`
 
-    nodeButton = document.getElementById("dropdownMenuButton")
+    if (!currentNode) {
+        let active_nodes = []
+        for (let node of walletData["nodes"]) {
+            if (node["is_online"]) {
+                active_nodes.push(node)
+            }
+        }
 
-    if (currentNode) {
-        nodeButton.textContent = currentNode
+        let randomNode;
+        if (active_nodes.length > 0) {
+            randomNode = active_nodes[Math.floor(Math.random() * active_nodes.length)];
+        } else {
+            randomNode = walletData["nodes"][Math.floor(Math.random() * walletData["nodes"].length)];
+        }
+        nodeButton.textContent = randomNode["title_id"]
+        localStorage.setItem(uniqueKey("node"), randomNode["title_id"])
+        await setData()
     } else {
-        let randomNode = walletData["nodes"][Math.floor(Math.random() * walletData["nodes"].length)];
-        nodeButton.textContent = randomNode
-        localStorage.setItem(uniqueKey("node"), randomNode)
+        nodeButton.textContent = currentNode
+        nodes.innerHTML = ""
+
+        for (const node of walletData["nodes"]) {
+            let status = node["is_online"] ? "🟢" : "🔴"
+            nodes.innerHTML += `<a class="dropdown-item" href="#" 
+        onclick="setNode('${node["title_id"]}')">${status} ${node["title_id"]} (Блоков: ${node["blocks_count"]})</a>`
+        }
     }
 }
 
 async function setNode(node) {
-    node = node.innerText
     let nodeButton = document.getElementById("dropdownMenuButton")
     nodeButton.textContent = node
     localStorage.setItem(uniqueKey("node"), node)
@@ -188,8 +225,10 @@ async function signMessage() {
 
     let result = (await (await fetch("/sign", {
         method: "POST",
-        body: JSON.stringify({message: message.value,
-            private_key: localStorage.getItem(uniqueKey("privateKey"))})
+        body: JSON.stringify({
+            message: message.value,
+            private_key: localStorage.getItem(uniqueKey("privateKey"))
+        })
     })).json())["result"]
 
     let signText = document.getElementById("resultSign")
