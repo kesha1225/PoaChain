@@ -6,3 +6,12 @@
 .nav-link:hover {
     color: white;
 }
+
+.error {
+    border: 1px solid red;
+}
+
+.modal-content {
+    max-width: 90%;
+    word-wrap: break-word;
+}

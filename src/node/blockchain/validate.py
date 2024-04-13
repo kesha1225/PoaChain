@@ -68,14 +68,12 @@ async def validate_block_with_transactions(
     block: BlockModel,
 ) -> BlocksVerifyResult:
     if not await validate_block(session=session, block=block):
-        print(f"bad block verif {block}")
         return BlocksVerifyResult(
             status=False,
         )
 
     for transaction in block.transactions:
         if not await validate_transaction(session=session, transaction=transaction):
-            print(f"bad trans verif {transaction}")
             return BlocksVerifyResult(status=False)
 
         await create_transaction(

@@ -11,7 +11,6 @@
     <link href="../css/index.css" rel="stylesheet">
     <link href="../css/wallet.css" rel="stylesheet">
     <link href='https://fonts.googleapis.com/css?family=JetBrains Mono' rel='stylesheet'>
-    <script src="../js/cookies.js"></script>
     <script src="../js/wallet.js"></script>
     <script src="../js/index.js"></script>
 </head>
@@ -42,10 +41,10 @@
     <div id="send" class="tab-content">
         <form onsubmit="confirmSend(); return false;">
             <div class="form-group">
-                <input type="text" class="form-control" id="recipient" name="recipient" placeholder="Адрес получателя">
+                <input type="text" class="form-control" id="recipient" name="recipient" placeholder="Адрес получателя" autocomplete="off">
             </div>
             <div class="form-group">
-                <input type="text" class="form-control" id="amount" name="amount" placeholder="Сумма">
+                <input type="text" class="form-control" id="amount" name="amount" placeholder="Сумма" autocomplete="off">
             </div>
             <button type="submit" class="btn btn-primary">Отправить</button>
         </form>
@@ -77,8 +76,8 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body">
-                Вы уверены, что хотите отправить эту транзакцию?
+            <div class="modal-body" id="transactionData">
+
             </div>
             <div class="modal-footer border-0">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
@@ -113,6 +112,58 @@
     </div>
     <div class="toast-body" style="color: black">
         Подпись была скопирована в буфер обмена.
+    </div>
+</div>
+
+<div id="errorPopupNode" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="2000"
+     style="position: fixed; bottom: 10px; right: 10px;">
+    <div class="toast-header bg-danger text-white">
+        <strong class="mr-auto">Ошибка подключения!</strong>
+        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="toast-body" style="color: black">
+        Не получилось подключиться к ноде. Выберите другую.
+    </div>
+</div>
+
+<div id="errorPopupNodeSend" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="2000"
+     style="position: fixed; bottom: 10px; right: 10px;">
+    <div class="toast-header bg-danger text-white">
+        <strong class="mr-auto">Ошибка отправки транзакции!</strong>
+        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="toast-body" style="color: black">
+        Не удалось отправить транзакцию. Нода недоступна.
+    </div>
+</div>
+
+<div id="errorPopupAddress" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="2000"
+     style="position: fixed; bottom: 10px; right: 10px;">
+    <div class="toast-header bg-danger text-white">
+        <strong class="mr-auto">Неверные данные.</strong>
+        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="toast-body" style="color: black">
+        Неверный адрес.
+    </div>
+</div>
+
+<div id="errorPopupAmount" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="2000"
+     style="position: fixed; bottom: 10px; right: 10px;">
+    <div class="toast-header bg-danger text-white">
+        <strong class="mr-auto">Неверные данные.</strong>
+        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="toast-body" style="color: black">
+        Неверная сумма.
     </div>
 </div>
 

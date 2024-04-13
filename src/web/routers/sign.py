@@ -9,9 +9,11 @@ router = APIRouter()
 
 @router.post("/sign")
 async def sign_handler(request: Request):
+    request_data = await request.json()
+
     return {
         "result": sign_message(
-            message=(await request.json())["message"],
-            private_key=decrypt_text(request.cookies["privateKey"]),
+            message=request_data["message"],
+            private_key=decrypt_text(request_data["private_key"]),
         )
     }

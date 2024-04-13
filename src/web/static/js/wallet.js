@@ -1,11 +1,86 @@
+function isvalidAddress(address) {
+    return (address.startsWith("poa") && address.length === 62
+        && address !== document.getElementById("address").textContent);
+}
+
+function isvalidAmount(amount) {
+    return (!isNaN(amount));
+}
+
 function confirmSend() {
+    let targetAddress = document.getElementById("recipient")
+    let targetAmount = document.getElementById("amount")
+
+    let targetAddressValue = targetAddress.value
+    let targetAmountValue = targetAmount.value
+
+    if (!targetAddressValue || !isvalidAddress(targetAddressValue)) {
+        targetAddress.classList.add("error");
+        setTimeout(function () {
+            targetAddress.classList.remove("error");
+        }, 2000);
+        $("#errorPopupAddress").toast('show');
+        setTimeout(function () {
+            $("#errorPopupAddress").toast('hide');
+        }, 2000);
+        return
+    }
+
+    if (!targetAmountValue || !isvalidAmount(targetAmountValue)) {
+        targetAmount.classList.add("error");
+        setTimeout(function () {
+            targetAmount.classList.remove("error");
+        }, 2000);
+        $("#errorPopupAmount").toast('show');
+        setTimeout(function () {
+            $("#errorPopupAmount").toast('hide');
+        }, 2000);
+        return;
+    }
+
+    document.getElementById("transactionData").innerHTML = `Вы уверены что хотите отправить 
+    <code>${targetAmountValue} POA</code> на <code>${targetAddressValue}</code>?`
     $('#confirmModal').modal('show');
 }
 
-function sendTransaction() {
+async function sendTransaction() {
     $('#confirmModal').modal('hide');
+    let targetAddress = document.getElementById("recipient").value
+    let targetAmount = document.getElementById("amount").value
 
+    console.log(targetAddress)
+    let transaction = (await (await fetch("/create_transaction", {
+        method: 'POST', headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+        },
+        body: JSON.stringify({address: targetAddress, amount: targetAmount,
+        publicKey: localStorage.getItem(uniqueKey("publicKey")),
+            privateKey: localStorage.getItem(uniqueKey("privateKey"))})
+    })).json())["encoded_transaction"]
+
+    let currentNode = localStorage.getItem(uniqueKey("node"))
+
+    console.log(currentNode)
+
+    let response = await (await fetch("/send_transaction", {
+        method: 'POST', headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+        },
+        body: JSON.stringify({data: transaction, node: currentNode})
+    })).json()
+
+
+    console.log(response)
+    if (!response["status"]) {
+        $("#errorPopupNodeSend").toast('show'); // Показываем popup
+        setTimeout(function () {
+            $("#errorPopupNodeSend").toast('hide'); // Скрываем popup через 2 секунды
+        }, 2000);
+        return
+    }
 }
+
+let currentNodes = []
 
 
 function openTab(tabName) {
@@ -51,24 +126,50 @@ async function setData() {
     let balanceText = document.getElementById("balance")
     let nodes = document.getElementById("nodes")
 
-    let walletData = await (await fetch("/get_wallet_data")).json()
+    let currentNode = localStorage.getItem(uniqueKey("node"))
+
+    let walletData = await (await fetch("/get_wallet_data", {
+        method: 'POST', headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+        },
+        body: JSON.stringify({node: currentNode,
+            address: localStorage.getItem(uniqueKey("address"))})
+    })).json()
+
+    for (const node of walletData["nodes"]) {
+        if (currentNodes.includes(node)) {
+            continue
+        }
+
+        currentNodes.push(node)
+        nodes.innerHTML += `<a class="dropdown-item" href="#" onclick="setNode(this)">${node}</a>`
+    }
+
+    let nodeButton = document.getElementById("dropdownMenuButton")
+    if (!currentNode) {
+        let randomNode = walletData["nodes"][Math.floor(Math.random() * walletData["nodes"].length)];
+        nodeButton.textContent = randomNode
+        localStorage.setItem(uniqueKey("node"), randomNode)
+    }
+
+    if (!walletData["status"]) {
+        $("#errorPopupNode").toast('show'); // Показываем popup
+        setTimeout(function () {
+            $("#errorPopupNode").toast('hide'); // Скрываем popup через 2 секунды
+        }, 2000);
+    }
 
     addressText.textContent = walletData["address"]
     balanceText.textContent = `${walletData["balance"]} POA`
 
-    for (const node of walletData["nodes"]) {
-        nodes.innerHTML += `<a class="dropdown-item" href="#" onclick="setNode(this)">${node}</a>`
-    }
-
-    let currentNode = localStorage.getItem("node")
-    let nodeButton = document.getElementById("dropdownMenuButton")
+    nodeButton = document.getElementById("dropdownMenuButton")
 
     if (currentNode) {
         nodeButton.textContent = currentNode
     } else {
         let randomNode = walletData["nodes"][Math.floor(Math.random() * walletData["nodes"].length)];
         nodeButton.textContent = randomNode
-        localStorage.setItem("node", randomNode)
+        localStorage.setItem(uniqueKey("node"), randomNode)
     }
 }
 
@@ -76,7 +177,9 @@ async function setNode(node) {
     node = node.innerText
     let nodeButton = document.getElementById("dropdownMenuButton")
     nodeButton.textContent = node
-    localStorage.setItem("node", node)
+    localStorage.setItem(uniqueKey("node"), node)
+
+    await setData()
 }
 
 
@@ -85,7 +188,8 @@ async function signMessage() {
 
     let result = (await (await fetch("/sign", {
         method: "POST",
-        body: JSON.stringify({message: message.value})
+        body: JSON.stringify({message: message.value,
+            private_key: localStorage.getItem(uniqueKey("privateKey"))})
     })).json())["result"]
 
     let signText = document.getElementById("resultSign")

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
-from .routers import index_router, mnemonic_router, wallet_router, sign_router
+from .routers import index_router, mnemonic_router, wallet_router, sign_router, transaction_router
 
 
 app = FastAPI()
@@ -9,6 +9,7 @@ app.include_router(index_router)
 app.include_router(mnemonic_router)
 app.include_router(wallet_router)
 app.include_router(sign_router)
+app.include_router(transaction_router)
 app.mount("/css", StaticFiles(directory="web/static/css/"), name="css")
 app.mount("/html", StaticFiles(directory="web/static/html/"), name="html")
 app.mount("/js", StaticFiles(directory="web/static/js/"), name="js")
@@ -58,15 +59,18 @@ app.mount("/images", StaticFiles(directory="web/static/images/"), name="images")
 их в балансировщик или ноды валидаторы. Для децентрализации!
 """
 
-# 1. todo: get_wallet_data поменять чтобы он ходил в выбранную ноду а не в базу
-# todo: в вебе писать колво блоков у конкретной ноды при выборе. юзер может выбрать
+# todo проверить один адрес к одной ноде другая к другой у второй баланс попозже обновляется!!
+
+# todo при обновлении подключать юзера к доступной ноде автоматом
+# todo не давать отправить меньше 0.01
+# todo: показывать результат отправки и писать ошибку если хуета
+# 3. todo: автообновление валлета типа что поменялся баланс
+# todo: в вебе писать колво блоков у конкретной ноды при выборе и ее статус (онлайн или нте). юзер может выбрать
 # самую старую и надежную
 # создание транзы в апи и в веб
-# 2. обзорщик блоков, поиск транзакций и обзор чужих адресов, отображение
+# todo 2. обзорщик блоков, поиск транзакций и обзор чужих адресов, отображение
 # моих транзакций
 # todo: сделать недоступными к выбору неактивные ноды.
-# 2. todo: првоерять что кука протухла и разлогинивать!
-# 3. todo: автообновление валлета типа что поменялся баланс
 # todo: проверить точно ли берется нода с самым последним блоком и синк идет с ней
 
 

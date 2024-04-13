@@ -11,6 +11,7 @@ from .routers import (
     block_router,
     receive_transaction_router,
     receive_block_router,
+    user_router,
 )
 
 
@@ -36,3 +37,4 @@ app.include_router(alive_router)
 app.include_router(block_router)
 app.include_router(receive_transaction_router)
 app.include_router(receive_block_router)
+app.include_router(user_router)

@@ -1,3 +1,11 @@
+if (!sessionStorage.tabId) {
+    sessionStorage.tabId = Date.now();
+}
+function uniqueKey(key) {
+    console.log(sessionStorage.tabId)
+    return sessionStorage.tabId + '_' + key;
+}
+
 async function createNew() {
     let mnemonicInput = document.getElementById("mnemonic")
     let mnemonicInputLabel = document.getElementById("mnemid")
@@ -24,18 +32,16 @@ async function login() {
     }
     res = res["wallet_data"]
 
-    setCookie('privateKey', res["private_key"], 30);
-    setCookie('publicKey', res["public_key"], 30);
-    setCookie('address', res["address"], 30);
+    localStorage.setItem(uniqueKey('privateKey'), res["private_key"]);
+    localStorage.setItem(uniqueKey('publicKey'), res["public_key"]);
+    localStorage.setItem(uniqueKey('address'), res["address"]);
     window.location.replace("/wallet");
 
 }
 
 
 async function logout() {
-    eraseCookie("privateKey")
-    eraseCookie("publicKey")
-    eraseCookie("address")
+    localStorage.clear()
     window.location.replace("/");
 }
 
