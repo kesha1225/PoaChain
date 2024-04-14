@@ -58,11 +58,14 @@ html *
     top: 20px;
     left: 20px;
     height: auto;
-    z-index: 9999;
 }
 
 .corner-image {
     margin-bottom: 10px;
     width: 80px;
     border-radius: 5px;
+}
+
+#sendlink,#signlink{
+    cursor:pointer;
 }

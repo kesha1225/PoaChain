@@ -54,6 +54,42 @@ function confirmSend() {
     $('#confirmModal').modal('show');
 }
 
+
+function createTransaction() {
+    let code = `<div class="card mb-1">
+            <div class="card-body">
+                <div class="container">
+                    <div class="row mb-2">
+                        <p class="card-text">
+                            <span class="transaction-type-arrow green-arrow">&rarr;</span>
+                            <span class="transaction-amount">+10 POA</span>
+                        </p>
+                    </div>
+                    <div class="row mb-2">
+                        <p class="card-text">
+                            <span class="transaction-address">poa1q...rxpu3</span>
+                            <button id="cfs" type="button" class="btn-sm btn-secondary" onClick="copySign()">
+                                Копировать адрес
+                            </button>
+                        </p>
+                    </div>
+                    <div class="row mb-2">
+                        <p class="card-text transaction-date">2024-04-12 15:30:00</p>
+                    </div>
+                    <div class="row">
+                        <p class="card-text"><a href="#">Перейти к транзакции</a></p>
+                    </div>
+                </div>
+            </div>
+
+        </div>`
+
+    const newTrans = document.createElement('div');
+    newTrans.class = "card mb-1"
+    newTrans.innerHTML = code
+    return newTrans
+}
+
 async function sendTransaction() {
     $('#confirmModal').modal('hide');
     let targetAddress = document.getElementById("recipient").value
@@ -109,7 +145,6 @@ async function sendTransaction() {
 
 function openTab(tabName) {
     let openTab = document.getElementById(tabName)
-
 
     let closeTab, openLink, closeLink;
     if (openTab.id === "send") {
@@ -208,7 +243,17 @@ async function setData(forUpdate = false) {
             nodes.innerHTML += `<a class="dropdown-item" href="#" 
         onclick="setNode('${node["title_id"]}')">${status} ${node["title_id"]} (Блоков: ${node["blocks_count"]})</a>`
         }
+
+        let transactions = []
+
+        let transactionsObject = document.getElementById("transactions")
+
+        transactionsObject.appendChild(createTransaction())
+        transactionsObject.appendChild(createTransaction())
+        transactionsObject.appendChild(createTransaction())
+        transactionsObject.appendChild(createTransaction())
     }
+
 }
 
 async function setNode(node) {

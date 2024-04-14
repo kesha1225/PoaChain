@@ -8,6 +8,8 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link href="../css/index.css" rel="stylesheet">
     <link href="../css/wallet.css" rel="stylesheet">
     <link href='https://fonts.googleapis.com/css?family=JetBrains Mono' rel='stylesheet'>
@@ -15,59 +17,79 @@
     <script src="../js/index.js"></script>
 </head>
 <body onload="setData()">
-<div class="container mt-5">
-    <h1 class="mb-4"><b>Poachain Кошелек</b></h1>
-    <div class="card mb-4">
-        <div class="card-body">
-            <h5 class="card-title">Текущий баланс:</h5>
-            <p class="card-text h2" id="balance"></p>
-        </div>
-    </div>
-    <div class="card mb-4">
-        <div class="card-body">
-            <h5 class="card-title">Ваш адрес:</h5>
-            <p class="card-text" id="address">Ваш адрес будет здесь</p>
-            <button class="btn btn-primary" onclick="copyAddress()">Копировать адрес</button>
-        </div>
-    </div>
-    <ul class="nav nav-tabs mb-4">
-        <li class="nav-item">
-            <a class="nav-link active" href="#send" id="sendlink" onclick="openTab('send')">Отправить криптовалюту</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="#sign" id="signlink" onclick="openTab('sign')">Создать подпись</a>
-        </li>
-    </ul>
-    <div id="send" class="tab-content">
-        <form onsubmit="confirmSend(); return false;">
-            <div class="form-group">
-                <input type="text" class="form-control" id="recipient" name="recipient" placeholder="Адрес получателя"
-                       autocomplete="off">
-            </div>
-            <div class="input-group" style="margin-bottom: 1%">
-                <input type="text" class="form-control" id="amount" name="amount" placeholder="Сумма"
-                       autocomplete="off">
-                <div class="input-group-append">
-                    <button class="btn btn-secondary" type="button" onclick="setAll()">Отправить всё</button>
+
+
+<div class="container">
+    <div>
+        <div>
+            <div class="container mt-5">
+                <h1 class="mb-4"><b>Poachain Кошелек</b></h1>
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Текущий баланс:</h5>
+                        <p class="card-text h2" id="balance"></p>
+                    </div>
+                </div>
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Ваш адрес:</h5>
+                        <p class="card-text" id="address">Ваш адрес будет здесь</p>
+                        <button class="btn btn-primary" onclick="copyAddress()">Копировать адрес</button>
+                    </div>
+                </div>
+                <ul class="nav nav-tabs mb-4">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="sendlink" onclick="openTab('send')">Отправить
+                            криптовалюту</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="signlink" onclick="openTab('sign')">Создать подпись</a>
+                    </li>
+                </ul>
+                <div id="send" class="tab-content">
+                    <form onsubmit="confirmSend(); return false;">
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="recipient" name="recipient"
+                                   placeholder="Адрес получателя"
+                                   autocomplete="off">
+                        </div>
+                        <div class="input-group" style="margin-bottom: 1%">
+                            <input type="text" class="form-control" id="amount" name="amount" placeholder="Сумма"
+                                   autocomplete="off">
+                            <div class="input-group-append">
+                                <button class="btn btn-secondary" type="button" onclick="setAll()">Отправить всё
+                                </button>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Отправить</button>
+                    </form>
+                </div>
+                <div id="sign" class="tab-content" hidden>
+                    <form>
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="message" name="message" placeholder="Сообщение">
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="resultSign" name="message" hidden></input>
+                        </div>
+
+                        <button type="button" class="btn btn-primary" onclick="signMessage()">Создать подпись</button>
+                        <button id="signButton" type="button" class="btn btn-primary" onclick="copySign()" hidden>
+                            Скопировать
+                            подпись
+                        </button>
+                    </form>
                 </div>
             </div>
-            <button type="submit" class="btn btn-primary">Отправить</button>
-        </form>
-    </div>
-    <div id="sign" class="tab-content" hidden>
-        <form>
-            <div class="form-group">
-                <input type="text" class="form-control" id="message" name="message" placeholder="Сообщение">
-            </div>
-            <div class="form-group">
-                <input type="text" class="form-control" id="resultSign" name="message" hidden></input>
-            </div>
+        </div>
 
-            <button type="button" class="btn btn-primary" onclick="signMessage()">Создать подпись</button>
-            <button id="signButton" type="button" class="btn btn-primary" onclick="copySign()" hidden>Скопировать
-                подпись
-            </button>
-        </form>
+        <div style="height: 500px; overflow: hidden;">
+            <h1 class="mb-4 mt-5"><b>Транзакции</b></h1>
+            <div style="overflow-y: auto; height: 60%;" id="transactions">
+            </div>
+        </div>
+
+
     </div>
 </div>
 
@@ -91,8 +113,6 @@
         </div>
     </div>
 </div>
-
-
 <div id="successPopup" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="2000"
      style="position: fixed; bottom: 10px; right: 10px;">
     <div class="toast-header bg-success text-white">
@@ -105,8 +125,6 @@
         Адрес был скопирован в буфер обмена.
     </div>
 </div>
-
-
 <div id="successPopupSign" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="2000"
      style="position: fixed; bottom: 10px; right: 10px;">
     <div class="toast-header bg-success text-white">
@@ -119,8 +137,6 @@
         Подпись была скопирована в буфер обмена.
     </div>
 </div>
-
-
 <div id="successChangeNode" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="2000"
      style="position: fixed; bottom: 10px; right: 10px;">
     <div class="toast-header bg-success text-white">
@@ -132,7 +148,6 @@
     <div class="toast-body" style="color: black" id="successNodeText">
     </div>
 </div>
-
 <div id="errorPopupNode" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="2000"
      style="position: fixed; bottom: 10px; right: 10px;">
     <div class="toast-header bg-danger text-white">
@@ -145,7 +160,6 @@
 
     </div>
 </div>
-
 <div id="errorPopupNodeSend" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="2000"
      style="position: fixed; bottom: 10px; right: 10px;">
     <div class="toast-header bg-danger text-white">
@@ -157,7 +171,6 @@
     <div class="toast-body" style="color: black" id="errorNodeDesc">
     </div>
 </div>
-
 <div id="successPopupNodeSend" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="2000"
      style="position: fixed; bottom: 10px; right: 10px;">
     <div class="toast-header bg-success text-white">
@@ -170,7 +183,6 @@
         Транзакция принята мемпулом ноды.
     </div>
 </div>
-
 <div id="errorPopupAddress" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="2000"
      style="position: fixed; bottom: 10px; right: 10px;">
     <div class="toast-header bg-danger text-white">
@@ -183,7 +195,6 @@
         Неверный адрес.
     </div>
 </div>
-
 <div id="errorPopupAmount" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="2000"
      style="position: fixed; bottom: 10px; right: 10px;">
     <div class="toast-header bg-danger text-white">
@@ -198,7 +209,7 @@
 </div>
 
 
-<div class="top">
+<div class="top" id="logo">
     <a href="/" onclick="logout()">
         <img src="../images/logo.png" alt="Главная" class="corner-image">
     </a> <br>
