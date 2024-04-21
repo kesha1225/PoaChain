@@ -1,4 +1,6 @@
 import aiohttp
+import cryptography
+from cryptography.fernet import InvalidToken
 from fastapi import APIRouter
 from starlette.requests import Request
 from starlette.responses import HTMLResponse
@@ -25,7 +27,11 @@ async def get_wallet_data_handler(request: Request):
     request_data = await request.json()
     node = request_data["node"]
 
-    address = decrypt_text(request_data["address"])
+    try:
+        address = decrypt_text(request_data["address"])
+    except cryptography.fernet.InvalidToken:
+        address = request_data["address"]
+
     node = get_node_by_id(node_id=node)
 
     session = aiohttp.ClientSession()
@@ -68,6 +74,8 @@ async def get_wallet_data_handler(request: Request):
     balance = await get_address_balance(url=node.url, session=session, address=address)
     if isinstance(balance, int):
         balance = round(balance / 100, 2)
+
+    await session.close()
     return {
         "status": True,
         "node_none": node is None,

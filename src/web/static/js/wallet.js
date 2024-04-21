@@ -1,8 +1,10 @@
 let updateAll = window.setInterval(async function () {
-    console.log("update")
     await setData(true)
 }, 3000);
 
+
+let addedHashes = []
+let chosenState = "all"
 
 function setAll() {
     document.getElementById("amount").value =
@@ -54,30 +56,51 @@ function confirmSend() {
     $('#confirmModal').modal('show');
 }
 
+function truncateAddress(address) {
+    return address.substring(0, 5) + '...' + address.substring(address.length - 7, address.length);
+}
 
-function createTransaction() {
+
+function createTransaction(transaction) {
+    let arrow = "&larr;"
+    let amount = `-${transaction['amount'] / 100} POA`
+    let address = truncateAddress(transaction['recipient_address'], 10)
+    let fullAddress = transaction['recipient_address']
+    let arrowClass = "red-arrow"
+    if (transaction["is_income"]) {
+        arrow = "&rarr;"
+        amount = `+${transaction['amount'] / 100} POA`
+        address = truncateAddress(transaction["sender_address"], 10)
+        fullAddress = transaction['sender_address']
+        arrowClass = "green-arrow"
+    }
+
     let code = `<div class="card mb-1">
             <div class="card-body">
                 <div class="container">
                     <div class="row mb-2">
                         <p class="card-text">
-                            <span class="transaction-type-arrow green-arrow">&rarr;</span>
-                            <span class="transaction-amount">+10 POA</span>
+                            <span class="transaction-type-arrow ${arrowClass}">${arrow}</span>
+                            <span class="transaction-amount">${amount}</span>
                         </p>
                     </div>
                     <div class="row mb-2">
                         <p class="card-text">
-                            <span class="transaction-address">poa1q...rxpu3</span>
-                            <button id="cfs" type="button" class="btn-sm btn-secondary" onClick="copySign()">
-                                Копировать адрес
-                            </button>
+                            <span class="transaction-address">
+                            <a style="color: white" href="/address/${fullAddress}" target="_blank">Адрес: ${address}</a>
+                            </span>
+                    
                         </p>
                     </div>
                     <div class="row mb-2">
-                        <p class="card-text transaction-date">2024-04-12 15:30:00</p>
+                        <p class="card-text transaction-date">${timeConverter(transaction['timestamp'])}</p>
                     </div>
                     <div class="row">
-                        <p class="card-text"><a href="#">Перейти к транзакции</a></p>
+                        <p class="card-text"><button
+                         class="btn-sm btn-primary">
+                         <a style="color: white" target="_blank" 
+                         href="/transaction/${transaction['transaction_hash']}">
+                         Перейти к транзакции</a></button></p>
                     </div>
                 </div>
             </div>
@@ -143,27 +166,74 @@ async function sendTransaction() {
 }
 
 
-function openTab(tabName) {
+async function openTab(tabName) {
     let openTab = document.getElementById(tabName)
+    let address = getAddress()
 
-    let closeTab, openLink, closeLink;
+    let currentNode = localStorage.getItem(uniqueKey("node"))
+    let closeTab, openLink, closeLink, closeLink2;
     if (openTab.id === "send") {
         closeTab = document.getElementById("sign")
         openLink = document.getElementById("sendlink")
         closeLink = document.getElementById("signlink")
-    } else {
+    } else if (openTab.id === "sign") {
         closeTab = document.getElementById("send")
         openLink = document.getElementById("signlink")
         closeLink = document.getElementById("sendlink")
+    } else if (openTab.id === "allTrans") {
+        openLink = document.getElementById("allTrans")
+        closeLink = document.getElementById("receive")
+        closeLink2 = document.getElementById("sent")
+        await createTransactions(address, currentNode, "all", true)
+        chosenState = "all"
+    } else if (openTab.id === "receive") {
+        openLink = document.getElementById("receive")
+        closeLink = document.getElementById("allTrans")
+        closeLink2 = document.getElementById("sent")
+        await createTransactions(address, currentNode, "to", true)
+        chosenState = "to"
+    } else if (openTab.id === "sent") {
+        openLink = document.getElementById("sent")
+        closeLink = document.getElementById("allTrans")
+        closeLink2 = document.getElementById("receive")
+        await createTransactions(address, currentNode, "from", true)
+        chosenState = "from"
     }
 
-    openTab.hidden = false
+    let isMobile = window.innerWidth < 900
+
+    if (openTab) {
+        openTab.hidden = false
+    }
+
     openLink.className = "nav-link active"
 
-    closeTab.hidden = true
+    if (closeTab) {
+        closeTab.hidden = true
+    }
     closeLink.className = "nav-link"
+
+    if (closeLink2) {
+        closeLink2.className = "nav-link"
+    }
+
+
+    if (isMobile) {
+        openLink.className = "nav-link active btn-sm"
+        closeLink.className = "nav-link btn-sm"
+        closeLink2.className = "nav-link btn-sm"
+    }
 }
 
+
+function getAddress(){
+    let address = localStorage.getItem(uniqueKey("address"))
+
+    if (window.location.pathname.includes("/address/")){
+        address = window.location.pathname.replace("/address/", "")
+    }
+    return address
+}
 
 function copyAddress() {
     let addressElement = document.getElementById("address");
@@ -179,6 +249,34 @@ function copyAddress() {
         });
 }
 
+async function createTransactions(address, currentNode, type = "all", full_update = false) {
+    let transactions = (await (await fetch("/get_transactions", {
+        method: 'POST', headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+        },
+        body: JSON.stringify({
+            node: currentNode,
+            address: address,
+            type: type
+        })
+    })).json())["transactions"]
+
+    let transactionsObject = document.getElementById("transactions")
+
+    if (full_update) {
+        addedHashes = []
+        transactionsObject.innerHTML = ""
+        transactionsObject.scrollTo(0, 0);
+    }
+    for (const transactionObj of transactions) {
+        if (addedHashes.includes(transactionObj["transaction_hash"])) {
+            continue
+        }
+        transactionsObject.prepend(createTransaction(transactionObj))
+        addedHashes.push(transactionObj["transaction_hash"])
+    }
+}
+
 async function setData(forUpdate = false) {
     let addressText = document.getElementById("address")
     let balanceText = document.getElementById("balance")
@@ -186,13 +284,22 @@ async function setData(forUpdate = false) {
 
     let currentNode = localStorage.getItem(uniqueKey("node"))
 
+    if (!localStorage.getItem(uniqueKey("privateKey")) ||
+        !localStorage.getItem(uniqueKey("publicKey")) ||
+        !localStorage.getItem(uniqueKey("address"))){
+        await logout()
+        return
+    }
+
+    let address = getAddress()
+
     let walletData = await (await fetch("/get_wallet_data", {
         method: 'POST', headers: {
             'Content-Type': 'application/json;charset=utf-8'
         },
         body: JSON.stringify({
             node: currentNode,
-            address: localStorage.getItem(uniqueKey("address"))
+            address: address
         })
     })).json()
 
@@ -244,14 +351,7 @@ async function setData(forUpdate = false) {
         onclick="setNode('${node["title_id"]}')">${status} ${node["title_id"]} (Блоков: ${node["blocks_count"]})</a>`
         }
 
-        let transactions = []
-
-        let transactionsObject = document.getElementById("transactions")
-
-        transactionsObject.appendChild(createTransaction())
-        transactionsObject.appendChild(createTransaction())
-        transactionsObject.appendChild(createTransaction())
-        transactionsObject.appendChild(createTransaction())
+        await createTransactions(address, currentNode, chosenState)
     }
 
 }
@@ -294,6 +394,18 @@ async function copySign() {
             $("#successPopupSign").toast('show'); // Показываем popup
             setTimeout(function () {
                 $("#successPopupSign").toast('hide'); // Скрываем popup через 2 секунды
+            }, 2000);
+        })
+        .catch(function (error) {
+        });
+}
+
+async function copyTransAddress(address) {
+    navigator.clipboard.writeText(address)
+        .then(function () {
+            $("#successPopup").toast('show'); // Показываем popup
+            setTimeout(function () {
+                $("#successPopup").toast('hide'); // Скрываем popup через 2 секунды
             }, 2000);
         })
         .catch(function (error) {

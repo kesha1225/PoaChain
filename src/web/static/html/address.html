@@ -3,94 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Poachain Кошелек</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <title>Poachain Wallet</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="../css/index.css" rel="stylesheet">
     <link href="../css/wallet.css" rel="stylesheet">
-    <link href='https://fonts.googleapis.com/css?family=JetBrains Mono' rel='stylesheet'>
-    <script src="../js/wallet.js"></script>
     <script src="../js/index.js"></script>
+    <script src="../js/wallet.js"></script>
+    <link href='https://fonts.googleapis.com/css?family=JetBrains Mono' rel='stylesheet'>
 </head>
 <body onload="setData(); onloadAdaptive()">
-
 <div class="top" id="logo">
     <div id="logoIMG">
         <a href="/" onclick="logout()">
             <img src="../images/logo.png" alt="Главная" class="corner-image">
         </a> <br>
     </div>
-    <button type="button" class="btn btn-primary" onclick="logout()">Блоки</button>
-    <button type="button" class="btn btn-primary" onclick="logout()">Выйти</button>
+    <button type="button" class="btn btn-primary" onclick="toMain()">Кошелёк</button>
 </div>
-
 
 <div class="container">
     <div>
         <div>
             <div class="container mt-5">
-                <h1 class="mb-4" style="margin-top: 1%"><b>Poachain Кошелек</b></h1>
+                <h1 class="mb-4" style="margin-top: 1%"><b>Poachain Просмотр Адреса</b></h1>
 
                 <div class="card mb-4">
                     <div class="card-body">
-                        <h5 class="card-title">Текущий баланс:</h5>
+                        <h5 class="card-title">Баланс Адреса:</h5>
                         <p class="card-text h2" id="balance"></p>
                     </div>
                 </div>
                 <div class="card mb-4">
                     <div class="card-body">
-                        <h5 class="card-title">Ваш адрес:</h5>
-                        <p class="card-text" id="address">Ваш адрес будет здесь</p>
+                        <h5 class="card-title">Адрес:</h5>
+                        <p class="card-text" id="address">Адрес будет здесь</p>
                         <button class="btn btn-primary" onclick="copyAddress()">Копировать адрес</button>
                     </div>
-                </div>
-                <ul class="nav nav-tabs mb-4">
-                    <li class="nav-item">
-                        <a class="nav-link active" id="sendlink" onclick="openTab('send')">Отправить
-                            криптовалюту</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" id="signlink" onclick="openTab('sign')">Создать подпись</a>
-                    </li>
-                </ul>
-                <div id="send" class="tab-content">
-                    <form onsubmit="confirmSend(); return false;">
-                        <div class="form-group">
-                            <input type="text" class="form-control" id="recipient" name="recipient"
-                                   placeholder="Адрес получателя"
-                                   autocomplete="off">
-                        </div>
-                        <div class="input-group" style="margin-bottom: 1%">
-                            <input type="text" class="form-control" id="amount" name="amount" placeholder="Сумма"
-                                   autocomplete="off">
-                            <div class="input-group-append">
-                                <button class="btn btn-secondary" type="button" id="setAllBTN"
-                                        onclick="setAll()">Отправить всё
-                                </button>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Отправить</button>
-                    </form>
-                </div>
-                <div id="sign" class="tab-content" hidden>
-                    <form>
-                        <div class="form-group">
-                            <input type="text" class="form-control" id="message" name="message" placeholder="Сообщение">
-                        </div>
-                        <div class="form-group">
-                            <input type="text" class="form-control" id="resultSign" name="message" hidden></input>
-                        </div>
-
-                        <button type="button" class="btn btn-primary" onclick="signMessage()">Создать подпись</button>
-                        <button id="signButton" type="button" class="btn btn-primary" onclick="copySign()" hidden>
-                            Скопировать
-                            подпись
-                        </button>
-                    </form>
                 </div>
             </div>
         </div>
@@ -115,6 +64,7 @@
 
     </div>
 </div>
+
 
 <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel"
      aria-hidden="true">
@@ -230,7 +180,6 @@
         Неверная сумма.
     </div>
 </div>
-
 <div class="btn-group dropleft" style="position: absolute; top: 2%; right: 2%;">
     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
             aria-haspopup="true" aria-expanded="false">
@@ -239,6 +188,11 @@
     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="nodes">
     </div>
 </div>
+
+<!-- Bootstrap JS -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 </body>
 </html>

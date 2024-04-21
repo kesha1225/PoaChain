@@ -1,9 +1,9 @@
 if (!sessionStorage.tabId) {
     sessionStorage.tabId = Date.now();
 }
+
 function uniqueKey(key) {
-    console.log(sessionStorage.tabId)
-    return sessionStorage.tabId + '_' + key;
+    return '_' + key;
 }
 
 async function createNew() {
@@ -47,10 +47,43 @@ async function logout() {
     window.location.replace("/");
 }
 
+async function toMain() {
+    window.location.replace("/wallet");
+}
+
 
 function badLogin() {
     $("#errorPopup").toast('show');
     setTimeout(function () {
         $("#errorPopup").toast('hide');
     }, 2000);
+}
+
+function onloadAdaptive() {
+    if (window.innerWidth < 900) {
+        document.getElementById("logoIMG").hidden = true
+        document.getElementById("setAllBTN").className = "btn btn-secondary btn-sm"
+        document.getElementById("sendlink").className = "nav-link active btn-sm"
+        document.getElementById("signlink").className = "nav-link btn-sm"
+
+        document.getElementById("allTrans").className = "nav-link active btn-sm"
+        document.getElementById("receive").className = "nav-link btn-sm"
+        document.getElementById("sent").className = "nav-link btn-sm"
+
+
+    }
+}
+
+
+function timeConverter(UNIX_timestamp) {
+    let a = new Date(UNIX_timestamp / 1000);
+    let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    let year = a.getFullYear();
+    let month = months[a.getMonth()];
+    let date = a.getDate();
+    let hour = a.getHours();
+    let min = a.getMinutes();
+    let sec = a.getSeconds();
+    let time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec;
+    return time;
 }

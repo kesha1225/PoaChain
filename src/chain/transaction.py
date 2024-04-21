@@ -2,7 +2,7 @@ import hashlib
 
 from sqlalchemy import func, select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.sql.operators import and_
+from sqlalchemy.sql.operators import and_, or_
 
 from chain.db import Transaction
 from chain.db.session import db_session
@@ -81,6 +81,44 @@ async def get_unconfirmed_transactions(session: AsyncSession) -> list[Transactio
     ).fetchall()
 
     return [transaction[0] for transaction in unconfirmed_transactions]
+
+
+@db_session
+async def get_transactions_by_address(
+    session: AsyncSession, address: str, transactions_type: str
+) -> list[TransactionModel]:
+
+    if transactions_type == "all":
+        query = or_(
+            Transaction.sender_address == address,
+            Transaction.recipient_address == address,
+        )
+    elif transactions_type == "from":
+        query = Transaction.sender_address == address
+    else:
+        query = Transaction.recipient_address == address
+
+    transactions = (await session.execute(select(Transaction).where(query))).fetchall()
+    return [transaction[0] for transaction in transactions]
+
+
+@db_session
+async def get_transaction_by_hash(
+    session: AsyncSession, transaction_hash: str
+) -> TransactionModel | None:
+
+    transaction = (
+        await session.execute(
+            select(Transaction).where(Transaction.transaction_hash == transaction_hash)
+        )
+    ).fetchone()
+
+    if transaction is None:
+        return
+
+    transaction = transaction[0]
+
+    return transaction
 
 
 @db_session
