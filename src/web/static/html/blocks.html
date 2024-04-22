@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poachain Wallet</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/index.css" rel="stylesheet">
+    <link href="../css/wallet.css" rel="stylesheet">
+    <script src="../js/index.js"></script>
+    <script src="../js/wallet.js"></script>
+    <script src="../js/block.js"></script>
+    <link href='https://fonts.googleapis.com/css?family=JetBrains Mono' rel='stylesheet'>
+</head>
+<body onload="setData(); blocksLoad(); onloadAdaptive()">
+<div class="top" id="logo">
+    <div id="logoIMG">
+        <a href="/wallet">
+            <img src="../images/logo.png" alt="Главная" class="corner-image">
+        </a> <br>
+    </div>
+    <button type="button" class="btn btn-primary" onclick="toMain()">Кошелёк</button>
+</div>
+
+<div class="container">
+    <div>
+        <div>
+            <div class="container mt-5">
+                <h1 class="mb-4" style="margin-top: 1%"><b>Poachain Обзорщик Блоков</b></h1>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th scope="col">Номер</th>
+                        <th scope="col">Издатель</th>
+                        <th scope="col">Время</th>
+                        <th scope="col">Хеш</th>
+                    </tr>
+                    </thead>
+                    <tbody id="blockTable">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="successChangeNode" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="2000"
+     style="position: fixed; bottom: 10px; right: 10px;">
+    <div class="toast-header bg-success text-white">
+        <strong class="mr-auto">Нода успешно подключена!</strong>
+        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="toast-body" style="color: black" id="successNodeText">
+    </div>
+</div>
+<div id="errorPopupNode" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="2000"
+     style="position: fixed; bottom: 10px; right: 10px;">
+    <div class="toast-header bg-danger text-white">
+        <strong class="mr-auto">Ошибка подключения!</strong>
+        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="toast-body" style="color: black" id="errorNodeText">
+
+    </div>
+</div>
+<div class="btn-group dropleft" style="position: absolute; top: 2%; right: 2%;">
+    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">
+        Выбор ноды
+    </button>
+    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="nodes">
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+</html>

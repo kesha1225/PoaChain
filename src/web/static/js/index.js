@@ -47,6 +47,10 @@ async function logout() {
     window.location.replace("/");
 }
 
+async function toBlocks() {
+    window.location.replace("/blocks");
+}
+
 async function toMain() {
     window.location.replace("/wallet");
 }

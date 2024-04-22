@@ -8,6 +8,7 @@ from .routers import (
     sign_router,
     transaction_router,
     address_watcher_router,
+    blocks_watcher_router,
 )
 
 
@@ -18,6 +19,7 @@ app.include_router(wallet_router)
 app.include_router(sign_router)
 app.include_router(transaction_router)
 app.include_router(address_watcher_router)
+app.include_router(blocks_watcher_router)
 app.mount("/css", StaticFiles(directory="web/static/css/"), name="css")
 app.mount("/html", StaticFiles(directory="web/static/html/"), name="html")
 app.mount("/js", StaticFiles(directory="web/static/js/"), name="js")
@@ -67,7 +69,9 @@ app.mount("/images", StaticFiles(directory="web/static/images/"), name="images")
 их в балансировщик или ноды валидаторы. Для децентрализации!
 """
 
-# todo  обзорщик блоков (как они вываливаются),
+# todo страницы в обзорщике блоков.
+# страница обзора блока (транзакций в нем) (ссылки на блок в обзорщике и в транзе)
+# поиск блока в обзорщике
 # добавить поиск транзакции в общоршике
 # писать ответственную ноду и номер блока в обзорщике транзакции
 # проверить две транзакции подряд отправить (посмотреть как засинкается)

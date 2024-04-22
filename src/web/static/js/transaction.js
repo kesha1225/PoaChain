@@ -81,10 +81,10 @@ async function setDataTrans() {
         transactionText.innerHTML = `
         <br>
         <p>Хеш: ${transactionObj['transaction_hash']}</p>
-        <p>От: <a style="color: white" href="/address/${transactionObj["sender_address"]}" target="_blank">
+        <p>От: <a style="color: white" href="/address/${transactionObj["sender_address"]}">
 ${transactionObj["sender_address"]}</a></p>
         <p>Кому: <a style="color: white" href="/address/${transactionObj["recipient_address"]}" 
-        target="_blank">${transactionObj["recipient_address"]}</a></p>
+        >${transactionObj["recipient_address"]}</a></p>
         <p>Сумма: ${transactionObj['amount'] / 100} POA</p>
         <p>Номер блока: 1337228</p>
         <p>Ответственная нода: блаблабла</p>

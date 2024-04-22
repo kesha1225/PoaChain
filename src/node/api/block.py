@@ -26,3 +26,17 @@ async def get_blocks_until_hash_from_node(
         return NewBlocksModel(blocks=[])
 
     return NewBlocksModel(**await response.json())
+
+
+async def get_blocks_from_node(
+    url: str, session: aiohttp.ClientSession, limit: int, offset: int
+) -> NewBlocksModel:
+    response = await session.post(
+        f"{url}/get_blocks",
+        params={"limit": limit, "offset": offset},
+    )
+
+    if response.status != 200:
+        return NewBlocksModel(blocks=[])
+
+    return NewBlocksModel(**await response.json())

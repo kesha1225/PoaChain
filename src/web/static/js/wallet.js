@@ -87,7 +87,7 @@ function createTransaction(transaction) {
                     <div class="row mb-2">
                         <p class="card-text">
                             <span class="transaction-address">
-                            <a style="color: white" href="/address/${fullAddress}" target="_blank">Адрес: ${address}</a>
+                            <a style="color: white" href="/address/${fullAddress}">Адрес: ${address}</a>
                             </span>
                     
                         </p>
@@ -98,7 +98,7 @@ function createTransaction(transaction) {
                     <div class="row">
                         <p class="card-text"><button
                          class="btn-sm btn-primary">
-                         <a style="color: white" target="_blank" 
+                         <a style="color: white"
                          href="/transaction/${transaction['transaction_hash']}">
                          Перейти к транзакции</a></button></p>
                     </div>
@@ -226,10 +226,10 @@ async function openTab(tabName) {
 }
 
 
-function getAddress(){
+function getAddress() {
     let address = localStorage.getItem(uniqueKey("address"))
 
-    if (window.location.pathname.includes("/address/")){
+    if (window.location.pathname.includes("/address/")) {
         address = window.location.pathname.replace("/address/", "")
     }
     return address
@@ -249,7 +249,19 @@ function copyAddress() {
         });
 }
 
+
+function isWallet() {
+    if (window.location.pathname.includes("/blocks")) {
+        return false
+    }
+    return true
+}
+
 async function createTransactions(address, currentNode, type = "all", full_update = false) {
+    if (!isWallet()) {
+        return
+    }
+
     let transactions = (await (await fetch("/get_transactions", {
         method: 'POST', headers: {
             'Content-Type': 'application/json;charset=utf-8'
@@ -286,7 +298,7 @@ async function setData(forUpdate = false) {
 
     if (!localStorage.getItem(uniqueKey("privateKey")) ||
         !localStorage.getItem(uniqueKey("publicKey")) ||
-        !localStorage.getItem(uniqueKey("address"))){
+        !localStorage.getItem(uniqueKey("address"))) {
         await logout()
         return
     }
@@ -302,6 +314,7 @@ async function setData(forUpdate = false) {
             address: address
         })
     })).json()
+
 
     let nodeButton = document.getElementById("dropdownMenuButton")
 
@@ -321,8 +334,11 @@ async function setData(forUpdate = false) {
         }, 2000);
     }
 
-    addressText.textContent = walletData["address"]
-    balanceText.textContent = `${walletData["balance"]} POA`
+    if (isWallet()) {
+        addressText.textContent = walletData["address"]
+        balanceText.textContent = `${walletData["balance"]} POA`
+    }
+
 
     if (!currentNode) {
         let active_nodes = []
@@ -350,7 +366,6 @@ async function setData(forUpdate = false) {
             nodes.innerHTML += `<a class="dropdown-item" href="#" 
         onclick="setNode('${node["title_id"]}')">${status} ${node["title_id"]} (Блоков: ${node["blocks_count"]})</a>`
         }
-
         await createTransactions(address, currentNode, chosenState)
     }
 

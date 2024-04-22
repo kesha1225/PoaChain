@@ -1,7 +1,11 @@
 from fastapi import APIRouter
 from starlette.requests import Request
 
-from chain.block import get_last_block_number, get_blocks_until_previous_hash
+from chain.block import (
+    get_last_block_number,
+    get_blocks_until_previous_hash,
+    get_blocks,
+)
 from chain.transaction import get_block_transactions
 
 router = APIRouter()
@@ -21,5 +25,18 @@ async def get_blocks_until_hash(request: Request):
             for block in await get_blocks_until_previous_hash(
                 last_block_previous_hash=last_block_previous_hash
             )
+        ]
+    }
+
+
+@router.post("/get_blocks")
+async def get_blocks_handler(request: Request):
+    limit = request.query_params.get("limit", 100)
+    offset = request.query_params.get("offset", 0)
+
+    return {
+        "blocks": [
+            block.to_dict(transactions=await get_block_transactions(block_id=block.id))
+            for block in await get_blocks(limit=limit, offset=offset)
         ]
     }

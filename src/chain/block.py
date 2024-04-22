@@ -139,3 +139,12 @@ async def update_transactions_for_block(
     )
 
     await session.commit()
+
+
+@db_session
+async def get_blocks(session: AsyncSession, limit: int, offset: int) -> list[Block]:
+    last_blocks = await session.execute(
+        select(Block).order_by(-Block.block_number).offset(offset).limit(limit)
+    )
+
+    return list(reversed([block[0] for block in last_blocks.all()]))
