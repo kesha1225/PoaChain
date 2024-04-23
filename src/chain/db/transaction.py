@@ -14,6 +14,7 @@ class Transaction(Base):
     timestamp = Column(BigInteger, nullable=False)
     transaction_hash = Column(String, unique=True, nullable=False)
     block_id = Column(Integer, ForeignKey("block.id"))
+    block_number = Column(Integer)
     block = relationship("Block", back_populates="transactions")
 
     def dict(self) -> dict:

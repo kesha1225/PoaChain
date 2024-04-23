@@ -15,6 +15,7 @@ async def create_transaction(
     session: AsyncSession,
     transaction: TransactionModel,
     block_id: int | None = None,
+    block_number: int | None = None,
     with_commit: bool = True,
 ) -> Transaction:
     new_transaction = Transaction(
@@ -24,6 +25,7 @@ async def create_transaction(
         timestamp=transaction.timestamp,
         transaction_hash=transaction.transaction_hash,
         block_id=block_id,
+        block_number=block_number
     )
     session.add(new_transaction)
 

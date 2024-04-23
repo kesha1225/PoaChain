@@ -1,6 +1,6 @@
 import hashlib
 
-from sqlalchemy import select, update
+from sqlalchemy import select, update, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from chain.constants import NO_BLOCK_PREVIOUS_HASH
@@ -34,6 +34,19 @@ async def get_block_by_hash(session: AsyncSession, block_hash: str) -> Block | N
         return None
 
     return block[0]
+
+
+@db_session
+async def get_block_by_number(session: AsyncSession, block_number: int) -> Block | None:
+    block = (
+        await session.execute(select(Block).where(Block.block_number == block_number))
+    ).first()
+
+    if block is None:
+        return None
+
+    return block[0]
+
 
 
 @db_session
@@ -116,7 +129,9 @@ async def add_new_blocks_from_node(
 
         for transaction in block.transactions:
             await create_transaction(
-                transaction=transaction, block_id=new_block.id, with_commit=with_commit
+                transaction=transaction, block_id=new_block.id,
+                block_number=new_block.block_number,
+                with_commit=with_commit
             )
 
 
@@ -148,3 +163,9 @@ async def get_blocks(session: AsyncSession, limit: int, offset: int) -> list[Blo
     )
 
     return list(reversed([block[0] for block in last_blocks.all()]))
+
+
+@db_session
+async def get_blocks_count(session: AsyncSession) -> int:
+    last_blocks = await session.execute(select(func.count()).select_from(Block))
+    return last_blocks.scalar()

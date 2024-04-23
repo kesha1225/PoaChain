@@ -10,7 +10,7 @@
     <link href="../css/wallet.css" rel="stylesheet">
     <script src="../js/index.js"></script>
     <script src="../js/wallet.js"></script>
-    <script src="../js/block.js"></script>
+    <script src="../js/blocks.js"></script>
     <link href='https://fonts.googleapis.com/css?family=JetBrains Mono' rel='stylesheet'>
 </head>
 <body onload="setData(); blocksLoad(); onloadAdaptive()">
@@ -35,6 +35,7 @@
                         <th scope="col">Издатель</th>
                         <th scope="col">Время</th>
                         <th scope="col">Хеш</th>
+                        <th scope="col"></th>
                     </tr>
                     </thead>
                     <tbody id="blockTable">
@@ -45,6 +46,20 @@
 
     </div>
 </div>
+
+<nav aria-label="Page navigation example">
+  <ul class="pagination justify-content-center" id="pagesData">
+    <li class="page-item disabled">
+      <a class="page-link" href="#" tabindex="-1">Предыдущая</a>
+    </li>
+    <li class="page-item"><a class="page-link" href="#">1</a></li>
+    <li class="page-item"><a class="page-link" href="#">2</a></li>
+    <li class="page-item"><a class="page-link" href="#">3</a></li>
+    <li class="page-item">
+      <a class="page-link" href="#">Следующая</a>
+    </li>
+  </ul>
+</nav>
 
 <div id="successChangeNode" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="2000"
      style="position: fixed; bottom: 10px; right: 10px;">

@@ -1,4 +1,5 @@
 import aiohttp
+from aiohttp import ClientConnectorError
 
 from node.models.block import NewBlocksModel
 
@@ -40,3 +41,19 @@ async def get_blocks_from_node(
         return NewBlocksModel(blocks=[])
 
     return NewBlocksModel(**await response.json())
+
+
+async def get_block_from_node(
+    url: str, session: aiohttp.ClientSession, block_hash: str
+) -> dict:
+    try:
+        response = await session.post(
+            f"{url}/get_block",
+            json={"block_hash": block_hash},
+        )
+    except ClientConnectorError:
+        return {"block": None}
+    if response.status != 200:
+        return {"block": None}
+
+    return await response.json()

@@ -16,3 +16,4 @@ class BlockModel(pydantic.BaseModel):
 
 class NewBlocksModel(pydantic.BaseModel):
     blocks: list[BlockModel]
+    total_count: int | None = None

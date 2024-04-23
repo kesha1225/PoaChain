@@ -78,6 +78,7 @@ async function setDataTrans() {
 
         transactionTitleText.innerText = "Данные транзакции:"
 
+        console.log(transactionObj)
         transactionText.innerHTML = `
         <br>
         <p>Хеш: ${transactionObj['transaction_hash']}</p>
@@ -92,4 +93,12 @@ ${transactionObj["sender_address"]}</a></p>
         `
     }
 
+}
+
+async function setNode(node) {
+    let nodeButton = document.getElementById("dropdownMenuButton")
+    nodeButton.textContent = node
+    localStorage.setItem(uniqueKey("node"), node)
+
+    await setDataTrans()
 }
