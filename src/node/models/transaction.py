@@ -10,3 +10,4 @@ class TransactionModel(pydantic.BaseModel):
     amount: int
     timestamp: int
     transaction_hash: str | None = None
+    block_number: int | None = None

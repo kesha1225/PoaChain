@@ -34,14 +34,17 @@ async def create_transaction(request: Request):
         bytes(hex_to_int_list(decrypt_text(transaction_data["privateKey"])))
     )
 
-    encoded_transaction = transfer_coins(
-        public_key=public_key,
-        private_key=private_key,
-        target_address=transaction_data["address"],
-        amount=int(float(transaction_data["amount"]) * 100),
-    )
+    try:
+        encoded_transaction = transfer_coins(
+            public_key=public_key,
+            private_key=private_key,
+            target_address=transaction_data["address"],
+            amount=int(float(transaction_data["amount"]) * 100),
+        )
+    except Exception as e:
+        return {"status": False, "message": str(e)}
 
-    return {"encoded_transaction": encoded_transaction}
+    return {"status": True, "encoded_transaction": encoded_transaction}
 
 
 @router.post("/send_transaction")

@@ -48,7 +48,6 @@ async def get_block_by_number(session: AsyncSession, block_number: int) -> Block
     return block[0]
 
 
-
 @db_session
 async def get_last_block_number(session: AsyncSession) -> int:
     last_block = await get_last_block(session=session)
@@ -129,9 +128,10 @@ async def add_new_blocks_from_node(
 
         for transaction in block.transactions:
             await create_transaction(
-                transaction=transaction, block_id=new_block.id,
+                transaction=transaction,
+                block_id=new_block.id,
                 block_number=new_block.block_number,
-                with_commit=with_commit
+                with_commit=with_commit,
             )
 
 
@@ -145,11 +145,14 @@ def calculate_block_hash(block: BlockModel) -> str:
 
 @db_session
 async def update_transactions_for_block(
-    session: AsyncSession, block_id: int, transactions: list[Transaction]
+    session: AsyncSession,
+    block_id: int,
+    block_number: int,
+    transactions: list[Transaction],
 ) -> None:
     await session.execute(
         update(Transaction)
-        .values(block_id=block_id)
+        .values(block_id=block_id, block_number=block_number)
         .where(Transaction.id.in_([transaction.id for transaction in transactions]))
     )
 
@@ -167,5 +170,5 @@ async def get_blocks(session: AsyncSession, limit: int, offset: int) -> list[Blo
 
 @db_session
 async def get_blocks_count(session: AsyncSession) -> int:
-    last_blocks = await session.execute(select(func.count()).select_from(Block))
-    return last_blocks.scalar()
+    all_blocks = await session.execute(select(func.count()).select_from(Block))
+    return all_blocks.scalar()

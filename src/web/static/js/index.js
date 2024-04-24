@@ -74,7 +74,7 @@ function onloadAdaptive() {
         document.getElementById("receive").className = "nav-link btn-sm"
         document.getElementById("sent").className = "nav-link btn-sm"
 
-
+        document.getElementById("bigScreenP").hidden = true
     }
 }
 
@@ -85,9 +85,18 @@ function timeConverter(UNIX_timestamp) {
     let year = a.getFullYear();
     let month = months[a.getMonth()];
     let date = a.getDate();
-    let hour = a.getHours();
-    let min = a.getMinutes();
-    let sec = a.getSeconds();
+    let hour = a.getHours().toString();
+    if (hour.length < 2){
+        hour = "0" + hour
+    }
+    let min = a.getMinutes().toString();
+    if (min.length < 2){
+        min = "0" + min
+    }
+    let sec = a.getSeconds().toString();
+    if (sec.length < 2){
+        sec = "0" + sec
+    }
     let time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec;
     return time;
 }

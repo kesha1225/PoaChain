@@ -7,12 +7,16 @@ from chain.block import (
     get_last_block_previous_hash,
     create_block,
     add_new_blocks_from_node,
+    get_blocks_count,
+    calculate_block_hash,
 )
 from chain.db.session import async_session
 from chain.transaction import create_transaction
+from chain_config import NodeConfig
 from node.api.block import get_blocks_until_hash_from_node
 from node.blockchain.balancer import get_suitable_node_url
 from node.blockchain.validate import validate_transaction, validate_block
+from node.models.block import BlockModel
 from node.structs.block import BlocksVerifyResult
 
 
@@ -88,3 +92,19 @@ async def start_node(session: aiohttp.ClientSession):
             return
 
         bad_urls.append(verify_result.suitable_node_url)
+
+
+async def after_start_node():
+    blocks_count = await get_blocks_count()
+    if blocks_count > 0:
+        return
+
+    genesis_block = BlockModel(
+        block_number=1,
+        previous_hash="genesis",
+        authority_id=NodeConfig.title_id,
+        timestamp=1,
+    )
+    genesis_block.block_hash = calculate_block_hash(block=genesis_block)
+
+    await create_block(block=genesis_block)

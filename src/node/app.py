@@ -5,7 +5,7 @@ import aiohttp
 from fastapi import FastAPI
 
 from .blockchain.block_processing import process_blocks_forever
-from .blockchain.startup import start_node
+from .blockchain.startup import start_node, after_start_node
 from .routers import (
     alive_router,
     block_router,
@@ -22,6 +22,7 @@ app = FastAPI()
 async def _startapp():
     session = aiohttp.ClientSession()
     await start_node(session=session)
+    await after_start_node()
     await session.close()
 
 

@@ -101,7 +101,8 @@ async function blocksLoad() {
             <th scope="row">${block['block_number']}</th>
             <td>${block['authority_id']}</td>
             <td>${timeConverter(block['timestamp'])}</td>
-            <td>${block['block_hash']}</td>
+            <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">
+${block['block_hash']}</td>
             <td><a href="/block/${block['block_hash']}">Подробнее</a></td>`
         let newBlock = document.createElement('tr');
         newBlock.innerHTML = code

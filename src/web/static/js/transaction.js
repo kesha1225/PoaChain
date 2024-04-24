@@ -62,7 +62,7 @@ async function setDataTrans() {
         }
     }
 
-    if (!transactionData["transaction_data"]){
+    if (!transactionData["transaction_data"]) {
         return
     }
 
@@ -70,10 +70,9 @@ async function setDataTrans() {
 
     console.log(transactionObj)
     let transactionTitleText = document.getElementById("transTitle")
-    if (!transactionObj){
+    if (!transactionObj) {
         transactionTitleText.innerText = "Транзакция не найдена"
-    }
-    else {
+    } else {
         let transactionText = document.getElementById("transData")
 
         transactionTitleText.innerText = "Данные транзакции:"
@@ -87,8 +86,11 @@ ${transactionObj["sender_address"]}</a></p>
         <p>Кому: <a style="color: white" href="/address/${transactionObj["recipient_address"]}" 
         >${transactionObj["recipient_address"]}</a></p>
         <p>Сумма: ${transactionObj['amount'] / 100} POA</p>
-        <p>Номер блока: 1337228</p>
-        <p>Ответственная нода: блаблабла</p>
+        <p>
+        Номер блока: <a href="${transactionObj['block_hash'] ?
+            '/block/' + transactionObj['block_hash'] : '#'}">
+${transactionObj['block_number']}</a></p>
+        <p>Ответственная нода: ${transactionObj['authority_id']}</p>
         <p>${timeConverter(transactionObj['timestamp'])}</p>
         `
     }

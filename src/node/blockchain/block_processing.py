@@ -68,7 +68,9 @@ async def release_block(session: aiohttp.ClientSession):
     await send_block_release_notify(session=session)
     new_block = await create_block(block=new_block)
     await update_transactions_for_block(
-        block_id=new_block.id, transactions=unconfirmed_transactions
+        block_id=new_block.id,
+        block_number=new_block.block_number,
+        transactions=unconfirmed_transactions,
     )
     await send_block_release_created(
         session=session, block=new_block, block_transactions=unconfirmed_transactions

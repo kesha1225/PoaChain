@@ -26,10 +26,19 @@ async def get_transaction_handler(request: Request):
     transaction_hash = request_data["transaction_hash"]
 
     data = await get_transaction_by_hash(transaction_hash=transaction_hash)
-    block = await get_block_by_number(block_number=data.block_number)
+    if data is None:
+        return {"transaction": None}
 
-    data["authority_id"] = block["authority_id"]
+    result = data.dict()
 
-    return {
-        "transaction": data
-    }
+    if data.block_number:
+        block = await get_block_by_number(block_number=data.block_number)
+        result["authority_id"] = block.authority_id
+        result["block_number"] = block.block_number
+        result["block_hash"] = block.block_hash
+    else:
+        result["block_number"] = "Не подтверждено."
+        result["authority_id"] = "Не подтверждено."
+        result["block_hash"] = ""
+
+    return {"transaction": result}

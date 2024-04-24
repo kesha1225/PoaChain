@@ -25,7 +25,7 @@ async def create_transaction(
         timestamp=transaction.timestamp,
         transaction_hash=transaction.transaction_hash,
         block_id=block_id,
-        block_number=block_number
+        block_number=block_number,
     )
     session.add(new_transaction)
 
@@ -100,7 +100,11 @@ async def get_transactions_by_address(
     else:
         query = Transaction.recipient_address == address
 
-    transactions = (await session.execute(select(Transaction).where(query))).fetchall()
+    transactions = (
+        await session.execute(
+            select(Transaction).where(query).order_by(Transaction.timestamp)
+        )
+    ).fetchall()
     return [transaction[0] for transaction in transactions]
 
 

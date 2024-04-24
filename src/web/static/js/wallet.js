@@ -127,7 +127,19 @@ async function sendTransaction() {
             publicKey: localStorage.getItem(uniqueKey("publicKey")),
             privateKey: localStorage.getItem(uniqueKey("privateKey"))
         })
-    })).json())["encoded_transaction"]
+    })).json())
+
+    if (!transaction["status"]){
+        document.getElementById("errorNodeDesc").innerText = "Не удалось отправить транзакцию. Неверные данные."
+        $("#errorPopupNodeSend").toast('show'); // Показываем popup
+        setTimeout(function () {
+            $("#errorPopupNodeSend").toast('hide'); // Скрываем popup через 2 секунды
+        }, 2000);
+        return
+    }
+
+
+    transaction = transaction["encoded_transaction"]
 
     let currentNode = localStorage.getItem(uniqueKey("node"))
 
