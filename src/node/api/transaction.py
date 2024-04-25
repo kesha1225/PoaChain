@@ -31,6 +31,22 @@ async def get_transactions_from_node(
     return await response.json()
 
 
+async def get_transactions_by_block_from_node(
+    url: str, session: aiohttp.ClientSession, block_hash: str
+) -> dict:
+    try:
+        response = await session.post(
+            f"{url}/get_transactions_by_block",
+            json={"block_hash": block_hash},
+        )
+    except ClientConnectorError:
+        return {"transactions": []}
+    if response.status != 200:
+        return {"transactions": []}
+
+    return await response.json()
+
+
 async def get_transaction_from_node(
     url: str, session: aiohttp.ClientSession, transaction_hash: str
 ) -> dict:

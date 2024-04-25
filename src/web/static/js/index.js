@@ -47,15 +47,6 @@ async function logout() {
     window.location.replace("/");
 }
 
-async function toBlocks() {
-    window.location.replace("/blocks");
-}
-
-async function toMain() {
-    window.location.replace("/wallet");
-}
-
-
 function badLogin() {
     $("#errorPopup").toast('show');
     setTimeout(function () {
@@ -99,4 +90,60 @@ function timeConverter(UNIX_timestamp) {
     }
     let time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec;
     return time;
+}
+
+function createTransaction(transaction) {
+    let arrow = "&larr;"
+    let amount = `-${transaction['amount'] / 100} POA`
+    let address = truncateAddress(transaction['recipient_address'], 10)
+    let fullAddress = transaction['recipient_address']
+    let arrowClass = "red-arrow"
+    if (transaction["is_income"]) {
+        arrow = "&rarr;"
+        amount = `+${transaction['amount'] / 100} POA`
+        address = truncateAddress(transaction["sender_address"], 10)
+        fullAddress = transaction['sender_address']
+        arrowClass = "green-arrow"
+    }
+
+    let code = `<div class="card mb-1">
+            <div class="card-body">
+                <div class="container">
+                    <div class="row mb-2">
+                        <p class="card-text">
+                            <span class="transaction-type-arrow ${arrowClass}">${arrow}</span>
+                            <span class="transaction-amount">${amount}</span>
+                        </p>
+                    </div>
+                    <div class="row mb-2">
+                        <p class="card-text">
+                            <span class="transaction-address">
+                            <a style="color: white" href="/address/${fullAddress}">Адрес: ${address}</a>
+                            </span>
+                    
+                        </p>
+                    </div>
+                    <div class="row mb-2">
+                        <p class="card-text transaction-date">${timeConverter(transaction['timestamp'])}</p>
+                    </div>
+                    <div class="row">
+                        <p class="card-text"><button
+                         class="btn-sm btn-primary">
+                         <a style="color: white"
+                         href="/transaction/${transaction['transaction_hash']}">
+                         Перейти к транзакции</a></button></p>
+                    </div>
+                </div>
+            </div>
+
+        </div>`
+
+    const newTrans = document.createElement('div');
+    newTrans.class = "card mb-1"
+    newTrans.innerHTML = code
+    return newTrans
+}
+
+function truncateAddress(address) {
+    return address.substring(0, 5) + '...' + address.substring(address.length - 7, address.length);
 }

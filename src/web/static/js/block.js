@@ -1,4 +1,5 @@
 const globalBlock = window.location.pathname.replace("/block/", "")
+let addedHashes = []
 
 
 async function setDataBlock() {
@@ -87,6 +88,7 @@ async function setDataBlock() {
         `
     }
 
+    await createTransactions(currentNode)
 }
 
 
@@ -96,4 +98,27 @@ async function setNode(node) {
     localStorage.setItem(uniqueKey("node"), node)
 
     await setDataBlock()
+}
+
+
+async function createTransactions(currentNode) {
+    let transactions = (await (await fetch("/get_transactions_by_block", {
+        method: 'POST', headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+        },
+        body: JSON.stringify({
+            node: currentNode,
+            block_hash: globalBlock,
+        })
+    })).json())["transactions"]
+
+    let transactionsObject = document.getElementById("transactions")
+
+    for (const transactionObj of transactions) {
+        if (addedHashes.includes(transactionObj["transaction_hash"])) {
+            continue
+        }
+        transactionsObject.prepend(createTransaction(transactionObj))
+        addedHashes.push(transactionObj["transaction_hash"])
+    }
 }

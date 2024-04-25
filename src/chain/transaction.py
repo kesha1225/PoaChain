@@ -4,7 +4,7 @@ from sqlalchemy import func, select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.operators import and_, or_
 
-from chain.db import Transaction
+from chain.db import Transaction, Block
 from chain.db.session import db_session
 from chain_config import NodeConfig
 from node.models.transaction import TransactionModel
@@ -103,6 +103,28 @@ async def get_transactions_by_address(
     transactions = (
         await session.execute(
             select(Transaction).where(query).order_by(Transaction.timestamp)
+        )
+    ).fetchall()
+    return [transaction[0] for transaction in transactions]
+
+
+@db_session
+async def get_transactions_by_block_hash(
+    session: AsyncSession, block_hash: str
+) -> list[TransactionModel]:
+
+    block = (
+        await session.execute(
+            select(Block).where(Block.block_hash == block_hash)
+        )
+    ).first()
+
+    if block is None:
+        return []
+
+    transactions = (
+        await session.execute(
+            select(Transaction).where(Transaction.block_number == block[0].block_number)
         )
     ).fetchall()
     return [transaction[0] for transaction in transactions]

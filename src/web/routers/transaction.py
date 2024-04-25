@@ -13,7 +13,7 @@ from node.api.status import is_node_online
 from node.api.transaction import (
     send_transaction_to_mempool,
     get_transactions_from_node,
-    get_transaction_from_node,
+    get_transaction_from_node, get_transactions_by_block_from_node,
 )
 from node.utils import get_node_by_id
 from node_constants import ALL_NODES
@@ -108,6 +108,40 @@ async def get_transactions(request: Request):
 
     for tr in transactions:
         tr["is_income"] = tr["recipient_address"] == address
+        res["transactions"].append(tr)
+
+    await session.close()
+    return res
+
+
+@router.post("/get_transactions_by_block")
+async def get_transactions_by_block_handler(request: Request):
+    request_data = await request.json()
+
+    node = request_data["node"]
+    block_hash = request_data["block_hash"]
+
+    node = get_node_by_id(node_id=node)
+
+    session = aiohttp.ClientSession()
+    is_online = await is_node_online(url=node.url, session=session)
+
+    if not is_online:
+        await session.close()
+        return {
+            "transactions": [],
+        }
+
+    res = {"transactions": []}
+    transactions = (
+        await get_transactions_by_block_from_node(
+            session=session,
+            url=node.url,
+            block_hash=block_hash,
+        )
+    )["transactions"]
+
+    for tr in transactions:
         res["transactions"].append(tr)
 
     await session.close()
