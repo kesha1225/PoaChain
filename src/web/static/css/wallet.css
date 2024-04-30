@@ -6,3 +6,33 @@
 .nav-link:hover {
     color: white;
 }
+
+.error {
+    border: 1px solid red;
+}
+
+.modal-content {
+    max-width: 90%;
+    word-wrap: break-word;
+}
+
+
+.transaction-type-arrow {
+    font-size: 24px; /* Размер стрелочки */
+}
+
+.transaction-amount {
+    font-weight: bold; /* Жирный шрифт для суммы */
+}
+
+.transaction-date {
+    font-size: smaller; /* Уменьшить размер шрифта для даты */
+}
+
+.green-arrow {
+    color: green; /* Зеленый цвет для стрелочки */
+}
+
+.red-arrow {
+    color: red; /* Зеленый цвет для стрелочки */
+}

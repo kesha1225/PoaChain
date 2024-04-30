@@ -1,8 +1,8 @@
 from mnemonic import Mnemonic
 from fastapi import APIRouter
-from starlette.responses import RedirectResponse
 
-from chain.poa_mnemonic import get_data_from_mnemonic, is_valid_mnemonic
+from chain.constants import PUBLIC_KEY_LENGTH
+from crypto.poa_mnemonic import get_data_from_mnemonic, is_valid_mnemonic
 from web.encryption import encrypt_text
 from web.models.mnemonic import UserInputMnemonic
 
@@ -22,11 +22,12 @@ async def get_data_from_mnemonic_handler(user_mnemonic: UserInputMnemonic):
         return {"ok": False, "error": "Invalid mnemonic phrase"}
 
     mnemonic_data = get_data_from_mnemonic(mnemonic_phrase=mnemonic_phrase)
+
     return {
         "ok": True,
         "wallet_data": {
-            "private_key": encrypt_text(mnemonic_data.private_key.to_string().hex()),
-            "public_key": encrypt_text(mnemonic_data.public_key.hex()),
+            "private_key": encrypt_text(mnemonic_data.private_key),
+            "public_key": encrypt_text(mnemonic_data.public_key),
             "address": encrypt_text(mnemonic_data.address),
         },
     }

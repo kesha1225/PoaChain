@@ -7,12 +7,10 @@
     <!-- Bootstrap CSS -->
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="../css/index.css" rel="stylesheet">
-    <script src="../js/cookies.js"></script>
     <script src="../js/index.js"></script>
     <link href='https://fonts.googleapis.com/css?family=JetBrains Mono' rel='stylesheet'>
 </head>
-<body>
-
+<body onload=" onloadAdaptive()">
 <div class="container">
     <div class="row justify-content-center wallet-container">
         <div class="col-md-6">
@@ -42,14 +40,14 @@
 
 
 <div class="top">
-    <a href="/" onclick="logout()">
+    <a href="/wallet" id="logoIMG">
         <img src="../images/logo.png" alt="Главная" class="corner-image">
     </a> <br>
 </div>
 
 
 <div id="errorPopup" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="2000"
-     style="position: fixed; top: 10px; right: 10px;">
+     style="position: fixed; bottom: 10px; right: 10px;">
     <div class="toast-header bg-danger text-white">
         <strong class="mr-auto">Ошибка входа!</strong>
         <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">

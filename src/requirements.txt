@@ -9,3 +9,6 @@ uvicorn
 mnemonic
 ecdsa
 cryptography
+PyNaCl
+bech32
+base64

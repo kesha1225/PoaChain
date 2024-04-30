@@ -1,7 +1,9 @@
 import hashlib
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, BigInteger
 from sqlalchemy.orm import relationship
 
+from node.models.transaction import TransactionModel
+from .transaction import Transaction
 from .base import Base
 
 
@@ -13,24 +15,20 @@ class Block(Base):
 
     block_hash = Column(String, unique=True, nullable=False)
     previous_hash = Column(String, unique=True, nullable=False)
-    nonce = Column(String, unique=True, nullable=False)
-    merkle_root = Column(String, unique=True, nullable=False)
+    merkle_root = Column(String, unique=True, nullable=True)
+    authority_id = Column(String, nullable=False)
 
-    timestamp = Column(DateTime, nullable=False)
+    timestamp = Column(BigInteger, nullable=False)
 
     transactions = relationship("Transaction", back_populates="block")
 
-    def calculate_merkle_root(self):
-        merkle_tree = [tx.transaction_hash for tx in self.transactions]
-        while len(merkle_tree) > 1:
-            merkle_tree = [
-                hashlib.sha256(
-                    merkle_tree[i].encode() + merkle_tree[i + 1].encode()
-                ).hexdigest()
-                for i in range(0, len(merkle_tree), 2)
-            ]
-        self.merkle_root = merkle_tree[0]
-
-    def calculate_block_hash(self) -> str:
-        block_data = f"{self.block_number}{self.previous_hash}{self.nonce}{self.merkle_root}{self.timestamp}"
-        return hashlib.sha256(block_data.encode()).hexdigest()
+    def to_dict(self, transactions: list[Transaction | TransactionModel]) -> dict:
+        return {
+            "block_number": self.block_number,
+            "block_hash": self.block_hash,
+            "previous_hash": self.previous_hash,
+            "merkle_root": self.merkle_root,
+            "authority_id": self.authority_id,
+            "timestamp": self.timestamp,
+            "transactions": [transaction.dict() for transaction in transactions],
+        }
