@@ -114,9 +114,7 @@ async def get_transactions_by_block_hash(
 ) -> list[TransactionModel]:
 
     block = (
-        await session.execute(
-            select(Block).where(Block.block_hash == block_hash)
-        )
+        await session.execute(select(Block).where(Block.block_hash == block_hash))
     ).first()
 
     if block is None:

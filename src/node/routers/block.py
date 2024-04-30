@@ -7,6 +7,7 @@ from chain.block import (
     get_blocks,
     get_blocks_count,
     get_block_by_hash,
+    get_block_by_number,
 )
 from chain.transaction import get_block_transactions
 
@@ -51,3 +52,11 @@ async def get_block_handler(request: Request):
     block_hash = request_data["block_hash"]
 
     return {"block": await get_block_by_hash(block_hash=block_hash)}
+
+
+@router.post("/get_block_by_number")
+async def get_block_by_numberhandler(request: Request):
+    request_data = await request.json()
+    block_number = request_data["block_number"]
+
+    return {"block": await get_block_by_number(block_number=block_number)}

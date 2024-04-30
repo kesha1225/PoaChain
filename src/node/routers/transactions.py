@@ -2,7 +2,11 @@ from fastapi import APIRouter
 from starlette.requests import Request
 
 from chain.block import get_block_by_hash, get_block_by_number
-from chain.transaction import get_transactions_by_address, get_transaction_by_hash, get_transactions_by_block_hash
+from chain.transaction import (
+    get_transactions_by_address,
+    get_transaction_by_hash,
+    get_transactions_by_block_hash,
+)
 
 router = APIRouter()
 
@@ -25,11 +29,7 @@ async def get_transactions_by_block_handler(request: Request):
     request_data = await request.json()
     block_hash = request_data["block_hash"]
 
-    return {
-        "transactions": await get_transactions_by_block_hash(
-            block_hash=block_hash
-        )
-    }
+    return {"transactions": await get_transactions_by_block_hash(block_hash=block_hash)}
 
 
 @router.post("/get_transaction")

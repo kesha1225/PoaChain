@@ -39,7 +39,9 @@ async def get_block_by_hash(session: AsyncSession, block_hash: str) -> Block | N
 @db_session
 async def get_block_by_number(session: AsyncSession, block_number: int) -> Block | None:
     block = (
-        await session.execute(select(Block).where(Block.block_number == block_number))
+        await session.execute(
+            select(Block).where(Block.block_number == int(block_number))
+        )
     ).first()
 
     if block is None:

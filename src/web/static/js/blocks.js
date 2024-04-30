@@ -8,7 +8,7 @@ function range(size, startAt = 0) {
     return [...Array(size).keys()].map(i => i + startAt);
 }
 
-function getCurrentPage(){
+function getCurrentPage() {
     let currentPage = window.location.search.replace("?page=", "")
     if (!currentPage || currentPage === "1") {
         currentPage = 1
@@ -44,13 +44,12 @@ async function updatePages(blocksCount) {
     let pages = range(pagesCount + 2).slice(startPage, endPage + 1)
 
     for (const x of pages) {
-        if (x === currentPage){
+        if (x === currentPage) {
             pagesObject.innerHTML +=
-            `<li class="page-item disabled"><a class="page-link" href="/blocks?page=${x}">${x}</a></li>`
-        }
-        else {
+                `<li class="page-item disabled"><a class="page-link" href="/blocks?page=${x}">${x}</a></li>`
+        } else {
             pagesObject.innerHTML +=
-            `<li class="page-item"><a class="page-link" href="/blocks?page=${x}">${x}</a></li>`
+                `<li class="page-item"><a class="page-link" href="/blocks?page=${x}">${x}</a></li>`
         }
 
     }
@@ -75,7 +74,7 @@ async function updatePages(blocksCount) {
 }
 
 
-async function blocksLoad() {
+async function blocksLoad(force = false) {
     let currentNode = localStorage.getItem(uniqueKey("node"))
 
     let blocksData = await fetch("/blocks_latest",
@@ -110,4 +109,145 @@ ${block['block_hash']}</td>
     }
 
     await updatePages(response["total_count"])
+
+    let nodeButton = document.getElementById("dropdownMenuButton")
+    let nodes = document.getElementById("nodes")
+
+    let transactionData = await (await fetch("/get_transaction_data", {
+        method: 'POST', headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+        },
+        body: JSON.stringify({
+            node: currentNode,
+            transaction: ""
+        })
+    })).json()
+
+    if (force) {
+        if (!transactionData["status"] && !transactionData["node_none"]) {
+            document.getElementById("errorNodeText").innerText = `Не получилось подключиться к ноде ${currentNode}. Выберите другую.`
+            $("#errorPopupNode").toast('show'); // Показываем popup
+            setTimeout(function () {
+                $("#errorPopupNode").toast('hide'); // Скрываем popup через 2 секунды
+            }, 2000);
+        }
+
+        if (transactionData["status"]) {
+            document.getElementById("successNodeText").innerText = `Успешно подключились к ноде ${currentNode}`
+            $("#successChangeNode").toast('show');
+            setTimeout(function () {
+                $("#successChangeNode").toast('hide');
+            }, 2000);
+        }
+    }
+
+    if (!currentNode) {
+        let active_nodes = []
+        for (let node of transactionData["nodes"]) {
+            if (node["is_online"]) {
+                active_nodes.push(node)
+            }
+        }
+
+        let randomNode;
+        if (active_nodes.length > 0) {
+            randomNode = active_nodes[Math.floor(Math.random() * active_nodes.length)];
+        } else {
+            randomNode = transactionData["nodes"][Math.floor(Math.random() * transactionData["nodes"].length)];
+        }
+        nodeButton.textContent = randomNode["title_id"]
+        localStorage.setItem(uniqueKey("node"), randomNode["title_id"])
+        await blocksLoad(true)
+    } else {
+        nodeButton.textContent = currentNode
+        nodes.innerHTML = ""
+
+        for (const node of transactionData["nodes"]) {
+            let status = node["is_online"] ? "🟢" : "🔴"
+            nodes.innerHTML += `<a class="dropdown-item" href="#" 
+        onclick="setNode('${node["title_id"]}')">${status} ${node["title_id"]} (Блоков: ${node["blocks_count"]})</a>`
+        }
+    }
+}
+
+function is_numeric(str) {
+    return /^\d+$/.test(str);
+}
+
+async function searchAll() {
+    let searchQuery = document.getElementById("searchData").value
+    let currentNode = localStorage.getItem(uniqueKey("node"))
+
+    if (!searchQuery) {
+        return
+    }
+
+    if (searchQuery.length === 62 && searchQuery.startsWith("poa")) {
+        window.open(`/address/${searchQuery}`, '_blank');
+    }
+
+    if (searchQuery.length === 64) {
+        let transactionData = await (await fetch("/get_transaction_data", {
+            method: 'POST', headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            },
+            body: JSON.stringify({
+                node: currentNode,
+                transaction: searchQuery
+            })
+        })).json()
+
+        console.log(transactionData)
+
+        if (transactionData["transaction_data"]["transaction"]) {
+            window.open(`/transaction/${searchQuery}`,
+                "_blank")
+            return
+        }
+
+
+        let blockData = await (await fetch("/get_block_data", {
+            method: 'POST', headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            },
+            body: JSON.stringify({
+                node: currentNode,
+                block: searchQuery
+            })
+        })).json()
+
+        if (blockData["block_data"]["block"]) {
+            window.open(`/block/${blockData['block_data']['block']['block_hash']}`, "_blank")
+            return
+        }
+
+        return
+    }
+
+    if (is_numeric(searchQuery)) {
+        let blockData = await (await fetch("/get_block_by_number", {
+            method: 'POST', headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            },
+            body: JSON.stringify({
+                node: currentNode,
+                block_number: searchQuery
+            })
+        })).json()
+
+        if (!blockData["block_data"]["block"]) {
+            return
+        }
+
+        window.open(`/block/${blockData['block_data']['block']['block_hash']}`, "_blank")
+    }
+}
+
+
+async function setNode(node) {
+    let nodeButton = document.getElementById("dropdownMenuButton")
+    nodeButton.textContent = node
+    localStorage.setItem(uniqueKey("node"), node)
+
+    await blocksLoad(true)
 }

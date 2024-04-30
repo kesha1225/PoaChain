@@ -7,6 +7,7 @@ from node.api.block import (
     get_blocks_from_node,
     get_last_block_number_from_node,
     get_block_from_node,
+    get_block_by_number_from_node,
 )
 from node.api.status import is_node_online
 from node.utils import get_node_by_id
@@ -102,6 +103,63 @@ async def get_block_data_handler(request: Request):
 
     transaction_data = await get_block_from_node(
         url=node.url, session=session, block_hash=block_hash
+    )
+
+    await session.close()
+    return {
+        "status": True,
+        "node_none": node is None,
+        "block_data": transaction_data,
+        "nodes": nodes,
+    }
+
+
+@router.post("/get_block_by_number")
+async def get_block_data_by_number_handler(request: Request):
+    request_data = await request.json()
+    node = request_data["node"]
+    block_number = request_data["block_number"]
+
+    node = get_node_by_id(node_id=node)
+    session = aiohttp.ClientSession()
+
+    if node is None:
+        is_online = False
+    else:
+        is_online = await is_node_online(url=node.url, session=session)
+
+    nodes = []
+
+    for _node in ALL_NODES:
+        _is_node_online = await is_node_online(url=_node.url, session=session)
+        if _is_node_online:
+            blocks_count = await get_last_block_number_from_node(
+                url=_node.url, session=session
+            )
+        else:
+            blocks_count = -1
+
+        nodes.append(
+            {
+                "title_id": _node.title_id,
+                "is_online": _is_node_online,
+                "blocks_count": blocks_count,
+            }
+        )
+
+    if not is_online:
+        await session.close()
+        return {
+            "status": False,
+            "node_none": node is None,
+            "description": "Node not online",
+            "block_data": None,
+            "balance": "Ошибка подключения",
+            "nodes": nodes,
+        }
+
+    transaction_data = await get_block_by_number_from_node(
+        url=node.url, session=session, block_number=block_number
     )
 
     await session.close()

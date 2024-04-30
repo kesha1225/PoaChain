@@ -57,3 +57,19 @@ async def get_block_from_node(
         return {"block": None}
 
     return await response.json()
+
+
+async def get_block_by_number_from_node(
+    url: str, session: aiohttp.ClientSession, block_number: str
+) -> dict:
+    try:
+        response = await session.post(
+            f"{url}/get_block_by_number",
+            json={"block_number": block_number},
+        )
+    except ClientConnectorError:
+        return {"block": None}
+    if response.status != 200:
+        return {"block": None}
+
+    return await response.json()

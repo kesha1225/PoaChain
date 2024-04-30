@@ -9,18 +9,19 @@
     <link href="../css/index.css" rel="stylesheet">
     <link href="../css/wallet.css" rel="stylesheet">
     <script src="../js/index.js"></script>
-    <script src="../js/wallet.js"></script>
     <script src="../js/blocks.js"></script>
     <link href='https://fonts.googleapis.com/css?family=JetBrains Mono' rel='stylesheet'>
 </head>
-<body onload="setData(); blocksLoad(); onloadAdaptive()">
+<body onload="blocksLoad(); onloadAdaptive()">
 <div class="top" id="logo">
     <div id="logoIMG">
         <a href="/wallet">
             <img src="../images/logo.png" alt="Главная" class="corner-image">
         </a> <br>
     </div>
-    <a href="/wallet"><button type="button" class="btn btn-primary">Кошелёк</button></a>
+    <a href="/wallet">
+        <button type="button" class="btn btn-primary">Кошелёк</button>
+    </a>
 </div>
 
 <div class="container">
@@ -28,6 +29,17 @@
         <div>
             <div class="container mt-5">
                 <h1 class="mb-4" style="margin-top: 1%"><b>Poachain Обзорщик Блоков</b></h1>
+                <form onsubmit="searchAll(); return false">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" id="searchData"
+                               placeholder="Поиск адреса, блока, транзакции и др."
+                               aria-label="Search" aria-describedby="button-search">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-primary" type="button"
+                                    id="button-search" onclick="searchAll()">Поиск</button>
+                        </div>
+                    </div>
+                </form>
                 <table class="table">
                     <thead>
                     <tr>
@@ -48,17 +60,17 @@
 </div>
 
 <nav aria-label="Page navigation example">
-  <ul class="pagination justify-content-center" id="pagesData">
-    <li class="page-item disabled">
-      <a class="page-link" href="#" tabindex="-1">Предыдущая</a>
-    </li>
-    <li class="page-item"><a class="page-link" href="#">1</a></li>
-    <li class="page-item"><a class="page-link" href="#">2</a></li>
-    <li class="page-item"><a class="page-link" href="#">3</a></li>
-    <li class="page-item">
-      <a class="page-link" href="#">Следующая</a>
-    </li>
-  </ul>
+    <ul class="pagination justify-content-center" id="pagesData">
+        <li class="page-item disabled">
+            <a class="page-link" href="#" tabindex="-1">Предыдущая</a>
+        </li>
+        <li class="page-item"><a class="page-link" href="#">1</a></li>
+        <li class="page-item"><a class="page-link" href="#">2</a></li>
+        <li class="page-item"><a class="page-link" href="#">3</a></li>
+        <li class="page-item">
+            <a class="page-link" href="#">Следующая</a>
+        </li>
+    </ul>
 </nav>
 
 <div id="successChangeNode" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="2000"

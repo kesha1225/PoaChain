@@ -13,7 +13,8 @@ from node.api.status import is_node_online
 from node.api.transaction import (
     send_transaction_to_mempool,
     get_transactions_from_node,
-    get_transaction_from_node, get_transactions_by_block_from_node,
+    get_transaction_from_node,
+    get_transactions_by_block_from_node,
 )
 from node.utils import get_node_by_id
 from node_constants import ALL_NODES

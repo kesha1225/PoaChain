@@ -1,4 +1,3 @@
-import {createTransaction} from "./index";
 
 let updateAll = window.setInterval(async function () {
     await setData(true)
