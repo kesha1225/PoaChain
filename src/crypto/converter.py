@@ -1,12 +1,9 @@
-import base64
 from base64 import b64decode
 
 from chain.constants import (
     PUBLIC_KEY_LENGTH,
     AMOUNT_LENGTH,
     TIMESTAMP_LENGTH,
-    RANDOM_DATA_LENGTH,
-    SIGN_LENGTH,
 )
 from chain.transaction import calculate_transaction_hash
 from crypto.transfer import public_key_to_address
