@@ -78,12 +78,18 @@ async def start_node(session: aiohttp.ClientSession):
 
         async with async_session() as sql_session:
             # получили все новые блоки с транзакциями
-            verify_result = await process_latest_blocks(
-                session=sql_session,
-                last_block_previous_hash=last_block_previous_hash,
-                http_session=session,
-                suitable_node_url=suitable_node_url,
-            )
+            try:
+                verify_result = await process_latest_blocks(
+                    session=sql_session,
+                    last_block_previous_hash=last_block_previous_hash,
+                    http_session=session,
+                    suitable_node_url=suitable_node_url,
+                )
+            except Exception as e:
+                logging.info(f"exception from verify {e}")
+                verify_result = BlocksVerifyResult(
+                    status=False, suitable_node_url=suitable_node_url
+                )
 
             sql_session.expunge_all()
 
