@@ -11,4 +11,4 @@ ecdsa
 cryptography
 PyNaCl
 bech32
-base64
+aiohttp

@@ -2,8 +2,6 @@ import os
 
 from dotenv import load_dotenv
 
-from node_constants import ALL_NODES
-
 load_dotenv(dotenv_path=os.getenv("DOTENV_FILE"))
 
 
