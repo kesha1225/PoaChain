@@ -55,7 +55,7 @@ async function updatePages(blocksCount) {
     }
 
 
-    if (currentPage === pagesCount) {
+    if (currentPage === pagesCount || pagesCount === 0) {
         pagesObject.innerHTML += `<li class="page-item disabled">
             <a class="page-link" href="#">Следующая</a>
         </li>`

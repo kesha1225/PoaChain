@@ -29,6 +29,9 @@ async def latest_blocks(request: Request):
     limit = request_data.get("limit", 100)
     offset = request_data.get("offset", 0)
 
+    if limit == offset:
+        offset = 0
+
     node = get_node_by_id(node_id=node)
     session = aiohttp.ClientSession()
 
