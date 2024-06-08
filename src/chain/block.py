@@ -1,4 +1,6 @@
 import hashlib
+import logging
+import traceback
 
 from sqlalchemy import select, update, func
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -116,8 +118,12 @@ async def create_block(
 
     session.add(new_block)
 
-    if with_commit:
-        await session.commit()
+    try:
+        if with_commit:
+            await session.commit()
+    except Exception as e:
+        logging.error(f"error block {traceback.format_exc()}")
+        return new_block
 
     return new_block
 
