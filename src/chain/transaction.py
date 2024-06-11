@@ -1,4 +1,5 @@
 import hashlib
+import logging
 
 from sqlalchemy import func, select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -157,7 +158,7 @@ def calculate_block_merkle_root(
     transactions: list[Transaction | TransactionModel],
 ) -> str | None:
     merkle_tree = [tx.transaction_hash for tx in transactions]
-    print(merkle_tree)
+    logging.error(merkle_tree)
     while len(merkle_tree) > 1:
         merkle_tree = [
             hashlib.sha256(
