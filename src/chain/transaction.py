@@ -154,18 +154,17 @@ async def delete_transaction(session: AsyncSession, transaction_id: int) -> None
     await session.commit()
 
 
-def calculate_block_merkle_root(
-    transactions: list[Transaction | TransactionModel],
-) -> str | None:
+def calculate_block_merkle_root(transactions: list[Transaction | TransactionModel]) -> str | None:
     merkle_tree = [tx.transaction_hash for tx in transactions]
-    logging.error(merkle_tree)
+
     while len(merkle_tree) > 1:
-        merkle_tree = [
-            hashlib.sha256(
-                merkle_tree[i].encode() + merkle_tree[i + 1].encode()
-            ).hexdigest()
-            for i in range(0, len(merkle_tree), 2)
-        ]
+        new_level = []
+        for i in range(0, len(merkle_tree), 2):
+            left = merkle_tree[i]
+            right = merkle_tree[i + 1] if i + 1 < len(merkle_tree) else merkle_tree[i]
+            new_hash = hashlib.sha256(left.encode() + right.encode()).hexdigest()
+            new_level.append(new_hash)
+        merkle_tree = new_level
 
     return merkle_tree[0] if merkle_tree else None
 
