@@ -157,6 +157,7 @@ def calculate_block_merkle_root(
     transactions: list[Transaction | TransactionModel],
 ) -> str | None:
     merkle_tree = [tx.transaction_hash for tx in transactions]
+    print(merkle_tree)
     while len(merkle_tree) > 1:
         merkle_tree = [
             hashlib.sha256(
