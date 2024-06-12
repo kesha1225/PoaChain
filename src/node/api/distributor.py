@@ -62,4 +62,4 @@ async def send_block_release_created(
             )
         )
 
-    result = await asyncio.gather(*tasks)
+    await asyncio.gather(*tasks)

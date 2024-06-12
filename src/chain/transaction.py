@@ -154,7 +154,9 @@ async def delete_transaction(session: AsyncSession, transaction_id: int) -> None
     await session.commit()
 
 
-def calculate_block_merkle_root(transactions: list[Transaction | TransactionModel]) -> str | None:
+def calculate_block_merkle_root(
+    transactions: list[Transaction | TransactionModel],
+) -> str | None:
     merkle_tree = [tx.transaction_hash for tx in transactions]
 
     while len(merkle_tree) > 1:

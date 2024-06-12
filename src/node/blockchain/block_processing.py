@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import traceback
 
 import aiohttp
 from fastapi import FastAPI
@@ -86,16 +87,28 @@ async def process_blocks_forever(app: FastAPI):
         if not await is_time_for_release():
             continue
 
-        active_ready_nodes = await get_active_ready_nodes(session=session)
+        try:
+            active_ready_nodes = await get_active_ready_nodes(session=session)
+        except Exception as e:
+            logging.error(f"cant active_ready_nodes {e} {traceback.format_exc()}")
+            continue
         if not active_ready_nodes:
             app.is_ready = True
-            await release_block(session=session)
+            try:
+                await release_block(session=session)
+            except Exception as e:
+                logging.error(f"cant release_block1 {e} {traceback.format_exc()}")
+                continue
             continue
 
         if not app.is_ready:
             continue
 
         if not app.is_waiting:
-            await release_block(session=session)
+            try:
+                await release_block(session=session)
+            except Exception as e:
+                logging.error(f"cant release_block2 {e} {traceback.format_exc()}")
+                continue
             app.is_waiting = True
             continue

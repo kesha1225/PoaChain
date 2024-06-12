@@ -23,6 +23,9 @@ async def is_node_ready(url: str, session: aiohttp.ClientSession) -> bool:
         response = await session.get(f"{url}/is_ready")
     except ClientConnectorError:
         return False
+    except Exception as e:
+        logging.error(f"bad conn to {url}/is_ready {e}")
+        return False
     if response.status != 200:
         return False
 

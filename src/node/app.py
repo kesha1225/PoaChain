@@ -36,7 +36,12 @@ async def startup_event():
 
 
 _log_format = "%(asctime)s - [%(levelname)s] - %(name)s - (%(filename)s).%(funcName)s(%(lineno)d) - %(message)s"
-logging.basicConfig(level=logging.INFO, format=_log_format, encoding="utf-8", filename=f"{NodeConfig.title_id}_log.txt")
+logging.basicConfig(
+    level=logging.INFO,
+    format=_log_format,
+    encoding="utf-8",
+    filename=f"{NodeConfig.title_id}_log.txt",
+)
 app.include_router(alive_router)
 app.include_router(block_router)
 app.include_router(receive_transaction_router)
