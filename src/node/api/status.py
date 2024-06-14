@@ -2,8 +2,12 @@ import logging
 
 import aiohttp
 from aiohttp import ClientConnectorError
+from aiocache import cached
+
+from node.constants import REQUEST_TTL
 
 
+@cached(ttl=REQUEST_TTL)
 async def is_node_online(url: str, session: aiohttp.ClientSession) -> bool:
     try:
         response = await session.get(f"{url}/is_alive")
@@ -18,6 +22,7 @@ async def is_node_online(url: str, session: aiohttp.ClientSession) -> bool:
     return (await response.json())["alive"]
 
 
+@cached(ttl=REQUEST_TTL)
 async def is_node_ready(url: str, session: aiohttp.ClientSession) -> bool:
     try:
         response = await session.get(f"{url}/is_ready")
