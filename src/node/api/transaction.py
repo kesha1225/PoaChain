@@ -2,6 +2,7 @@ import aiohttp
 from aiocache import cached
 from aiohttp import ClientConnectorError
 
+from node.cache import key_builder_get_transactions_from_node
 from node.constants import REQUEST_TTL, REQUEST_TRANSACTIONS_TTL
 
 
@@ -18,7 +19,9 @@ async def send_transaction_to_mempool(
     return await response.json()
 
 
-@cached(ttl=REQUEST_TRANSACTIONS_TTL)
+@cached(
+    ttl=REQUEST_TRANSACTIONS_TTL, key_builder=key_builder_get_transactions_from_node
+)
 async def get_transactions_from_node(
     url: str, session: aiohttp.ClientSession, address: str, transaction_type: str
 ) -> dict:
