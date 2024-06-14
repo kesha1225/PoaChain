@@ -23,7 +23,7 @@ async def is_node_online(url: str, session: aiohttp.ClientSession) -> bool:
     return (await response.json())["alive"]
 
 
-@cached(ttl=REQUEST_TTL, key_builder=key_builder_is_ready)
+# @cached(ttl=REQUEST_TTL, key_builder=key_builder_is_ready)
 async def is_node_ready(url: str, session: aiohttp.ClientSession) -> bool:
     try:
         response = await session.get(f"{url}/is_ready")

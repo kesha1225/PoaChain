@@ -39,7 +39,6 @@ async def receive_notify_handler(request: Request):
         return {"status": False, "description": "Bad sign"}
 
     request.app.is_ready = True
-    await is_node_ready.cache.clear()
     return {"status": True}
 
 
