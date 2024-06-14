@@ -12,3 +12,4 @@ cryptography
 PyNaCl
 bech32
 aiohttp
+aiocache
