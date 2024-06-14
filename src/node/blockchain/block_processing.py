@@ -98,7 +98,6 @@ async def process_blocks_forever(app: FastAPI):
                 await release_block(session=session)
             except Exception as e:
                 logging.error(f"cant release_block1 {e} {traceback.format_exc()}")
-                continue
             continue
 
         if not app.is_ready:

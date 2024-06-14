@@ -5,6 +5,7 @@ from starlette.requests import Request
 from chain.block import add_new_blocks_from_node
 from chain.db.session import async_session
 from crypto.sign import text_sign_verify
+from node.api.status import is_node_ready
 from node.blockchain.balancer import is_previous_node
 from node.blockchain.validate import validate_block_with_transactions
 from node.models.block import BlockModel
@@ -38,6 +39,7 @@ async def receive_notify_handler(request: Request):
         return {"status": False, "description": "Bad sign"}
 
     request.app.is_ready = True
+    await is_node_ready.cache.clear()
     return {"status": True}
 
 
