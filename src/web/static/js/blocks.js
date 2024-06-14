@@ -1,6 +1,6 @@
 let updateAllBlocks = window.setInterval(async function () {
     await blocksLoad()
-}, 3000);
+}, 5000);
 
 let blocksOnPage = 15
 

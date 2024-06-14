@@ -1,7 +1,7 @@
 
 let updateAll = window.setInterval(async function () {
     await setData(true)
-}, 3000);
+}, 5000);
 
 
 let addedHashes = []
