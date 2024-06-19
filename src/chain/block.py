@@ -3,6 +3,7 @@ import logging
 import traceback
 
 from sqlalchemy import select, update, func
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from chain.constants import NO_BLOCK_PREVIOUS_HASH
@@ -121,9 +122,13 @@ async def create_block(
     try:
         if with_commit:
             await session.commit()
+    except IntegrityError:
+        new_block.block_number += 1
     except Exception as e:
         logging.error(f"error block {traceback.format_exc()}")
-        return new_block
+    finally:
+        if with_commit:
+            await session.commit()
 
     return new_block
 
