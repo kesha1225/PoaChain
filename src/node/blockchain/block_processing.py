@@ -82,32 +82,35 @@ async def process_blocks_forever(app: FastAPI):
     await asyncio.sleep(3)
     session = aiohttp.ClientSession()
     while True:
-        await asyncio.sleep(0.1)
-
-        if not await is_time_for_release():
-            continue
-
         try:
-            active_ready_nodes = await get_active_ready_nodes(session=session)
-        except Exception as e:
-            logging.error(f"cant active_ready_nodes {e} {traceback.format_exc()}")
-            continue
-        if not active_ready_nodes:
-            app.is_ready = True
-            try:
-                await release_block(session=session)
-            except Exception as e:
-                logging.error(f"cant release_block1 {e} {traceback.format_exc()}")
-            continue
+            await asyncio.sleep(0.1)
 
-        if not app.is_ready:
-            continue
-
-        if not app.is_waiting:
-            try:
-                await release_block(session=session)
-            except Exception as e:
-                logging.error(f"cant release_block2 {e} {traceback.format_exc()}")
+            if not await is_time_for_release():
                 continue
-            app.is_waiting = True
-            continue
+
+            try:
+                active_ready_nodes = await get_active_ready_nodes(session=session)
+            except Exception as e:
+                logging.error(f"cant active_ready_nodes {e} {traceback.format_exc()}")
+                continue
+            if not active_ready_nodes:
+                app.is_ready = True
+                try:
+                    await release_block(session=session)
+                except Exception as e:
+                    logging.error(f"cant release_block1 {e} {traceback.format_exc()}")
+                continue
+
+            if not app.is_ready:
+                continue
+
+            if not app.is_waiting:
+                try:
+                    await release_block(session=session)
+                except Exception as e:
+                    logging.error(f"cant release_block2 {e} {traceback.format_exc()}")
+                    continue
+                app.is_waiting = True
+                continue
+        except Exception as e:
+            logging.error(f"process_blocks_forever error {traceback.format_exc()}")
