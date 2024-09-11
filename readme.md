@@ -4,6 +4,8 @@ A POA-based blockchain featuring new methods for node synchronization, block pro
 
 <img alt="img.png" height="200" src="img.png" width="200"/>
 
+### Key Features of the PoaChain:
+
 **Proof of Authority (PoA) Consensus Mechanism**. PoaChain utilizes a Proof of Authority (PoA) consensus mechanism, where a small set of trusted validators are
    responsible for block validation. This significantly reduces the computational resources required, leading to faster
    transaction processing and lower costs, particularly suited for high-efficiency applications.
